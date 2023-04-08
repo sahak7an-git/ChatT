@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.sahak7an.chatt.databinding.ActivityMainBinding;
+import com.sahak7an.chatt.models.User;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
 import java.util.HashMap;
@@ -49,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setListeners() {
         activityMainBinding.imageSignOut.setOnClickListener(v -> signOut());
+        activityMainBinding.newChat.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), UsersActivity.class));
+        });
     }
 
     private void loadUserDetails() {
