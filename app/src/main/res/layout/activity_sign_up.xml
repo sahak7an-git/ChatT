@@ -22,7 +22,7 @@
             android:layout_marginTop="@dimen/_20sdp"
             android:text="@string/create_new_account"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_18ssp"
+            android:textSize="@dimen/_15ssp"
             android:textStyle="bold"/>
 
         <FrameLayout
@@ -46,7 +46,7 @@
                 android:layout_gravity="center"
                 android:text="@string/add_image"
                 android:textColor="@color/primary_text"
-                android:textSize="@dimen/_10ssp"/>
+                android:textSize="@dimen/_9ssp"/>
 
         </FrameLayout>
 
@@ -64,7 +64,7 @@
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_13ssp"/>
+            android:textSize="@dimen/_9ssp"/>
 
         <EditText
             android:id="@+id/inputEmail"
@@ -80,7 +80,7 @@
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_13ssp"/>
+            android:textSize="@dimen/_9ssp"/>
 
         <EditText
             android:id="@+id/inputPassword"
@@ -96,7 +96,7 @@
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_13ssp"/>
+            android:textSize="@dimen/_9ssp"/>
 
         <EditText
             android:id="@+id/inputConfirmPassword"
@@ -112,7 +112,7 @@
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/primary_text"
-            android:textSize="@dimen/_13ssp"/>
+            android:textSize="@dimen/_9ssp"/>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -127,7 +127,7 @@
                 android:layout_marginTop="@dimen/_20sdp"
                 android:text="@string/sign_up"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_13ssp"
+                android:textSize="@dimen/_9ssp"
                 android:textStyle="bold"
                 app:cornerRadius="@dimen/_8sdp"/>
 
@@ -148,7 +148,7 @@
             android:layout_marginTop="@dimen/_12sdp"
             android:text="@string/sign_in"
             android:textColor="@color/primary"
-            android:textSize="@dimen/_13ssp"
+            android:textSize="@dimen/_9ssp"
             android:textStyle="bold"/>
 
     </LinearLayout>

@@ -11,6 +11,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_VERIFIED;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TimeUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,8 +27,11 @@ import com.sahak7an.chatt.databinding.ActivitySignInBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class SignInActivity extends AppCompatActivity {
+
+    FirebaseUser firebaseUser;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private PreferenceManager preferenceManager;
@@ -37,9 +41,12 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         preferenceManager = new PreferenceManager(getApplicationContext());
         activitySignInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
+
         setContentView(activitySignInBinding.getRoot());
         setListeners();
         autoLogIn();
@@ -52,39 +59,57 @@ public class SignInActivity extends AppCompatActivity {
 
         activitySignInBinding.buttonSignIn.setOnClickListener(v -> {
             if (isValidSignInDetails()) {
+                firebaseUser.reload();
                 isVerified();
             }
         });
     }
 
     private void loading(Boolean isLoading) {
+
         if (isLoading) {
+
             activitySignInBinding.buttonSignIn.setVisibility(View.INVISIBLE);
             activitySignInBinding.progressBar.setVisibility(View.VISIBLE);
+
         } else {
+
             activitySignInBinding.buttonSignIn.setVisibility(View.VISIBLE);
             activitySignInBinding.progressBar.setVisibility(View.INVISIBLE);
+
         }
+
     }
 
     private void showToast(String message) {
+
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
     }
 
     private Boolean isValidSignInDetails() {
+
         if (activitySignInBinding.inputEmail.getText().toString().trim().isEmpty()) {
+
             showToast("Enter Email");
             return false;
+
         } else if (activitySignInBinding.inputPassword.getText().toString().trim().isEmpty()) {
+
             showToast("Enter Password");
             return false;
+
         } else {
+
             return true;
+
         }
     }
 
     private void signIn() {
+
         loading(true);
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         firebaseAuth.signInWithEmailAndPassword(activitySignInBinding.inputEmail.getText().toString(),
@@ -100,6 +125,7 @@ public class SignInActivity extends AppCompatActivity {
                                         .whereEqualTo(KEY_EMAIL, activitySignInBinding.inputEmail.getText().toString())
                                         .get()
                                         .addOnCompleteListener(v -> {
+
                                             if (v.isSuccessful() && v.getResult() != null && v.getResult().getDocuments().size() > 0) {
 
                                                 DocumentSnapshot documentSnapshot = v.getResult().getDocuments().get(0);
@@ -116,14 +142,19 @@ public class SignInActivity extends AppCompatActivity {
                                                 finish();
 
                                             } else {
+
                                                 loading(false);
                                                 showToast("This account isn't sign up");
+
                                                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+
                                                 if (firebaseUser != null) {
                                                     firebaseUser.delete();
                                                 }
+
                                                 startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                                                 finish();
+
                                             }
                                         });
 
@@ -140,41 +171,78 @@ public class SignInActivity extends AppCompatActivity {
                         showToast("Incorrect Password");
 
                     } else {
+
                         showToast("Doesn't Sign in");
+
                     }
                 });
     }
 
     private void isVerified() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user != null) {
-            user.reload();
-            if (user.isEmailVerified()) {
-                signIn();
-            } else {
-                user.sendEmailVerification();
+        if (firebaseUser != null) {
+            firebaseUser.reload();
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(50);
+
+                firebaseUser.reload();
+
+                if (firebaseUser.isEmailVerified()) {
+
+                    signIn();
+
+                } else {
+
+                    showToast("Verify Account");
+                    firebaseUser.sendEmailVerification();
+
+                }
+
+            } catch (InterruptedException e) {
+
+                throw new RuntimeException(e);
+
             }
+
         }
     }
 
     private void autoLogIn() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            user.reload();
-            if (user.isEmailVerified()) {
-                if (preferenceManager.getBoolean(KEY_IS_SIGNED_IN) && preferenceManager.getBoolean(KEY_VERIFIED)) {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }  else {
-                isVerified();
-            }
-        } else {
-            showToast("Sign up");
-        }
 
+        if (firebaseUser != null) {
+            firebaseUser.reload();
+
+            try {
+
+                TimeUnit.MILLISECONDS.sleep(50);
+
+                firebaseUser.reload();
+
+                if (firebaseUser.isEmailVerified()) {
+
+                    if (preferenceManager.getBoolean(KEY_IS_SIGNED_IN) && preferenceManager.getBoolean(KEY_VERIFIED)) {
+
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intent);
+                        finish();
+
+                    }
+
+                }  else {
+
+                    showToast("Verify your account");
+                    firebaseUser.sendEmailVerification();
+
+                }
+
+            } catch (InterruptedException e) {
+
+                throw new RuntimeException(e);
+
+            }
+
+        }
 
     }
 

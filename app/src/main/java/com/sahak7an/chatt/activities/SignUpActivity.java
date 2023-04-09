@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.sahak7an.chatt.databinding.ActivitySignUpBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
@@ -49,18 +50,24 @@ public class SignUpActivity extends AppCompatActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
+
                     if (result.getData() != null) {
+
                         Uri imageUri = result.getData().getData();
 
                         try {
+
                             InputStream inputStream = getContentResolver().openInputStream(imageUri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
                             activitySignUpBinding.imageProfile.setImageBitmap(bitmap);
                             activitySignUpBinding.textAddImage.setVisibility(View.GONE);
                             encodedImage = encodedImage(bitmap);
+
                         } catch (FileNotFoundException e) {
+
                             e.printStackTrace();
+
                         }
                     }
                 }
@@ -70,6 +77,7 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         preferenceManager = new PreferenceManager(getApplicationContext());
         activitySignUpBinding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(activitySignUpBinding.getRoot());
@@ -78,21 +86,30 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+
         activitySignUpBinding.textSignIn.setOnClickListener(v -> onBackPressed());
+
         activitySignUpBinding.buttonSignUp.setOnClickListener(v -> {
             if (isValidSignUpDetails()) {
+
                 signUp();
+
             }
         });
+
         activitySignUpBinding.layoutImage.setOnClickListener(v -> {
+
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             pickImage.launch(intent);
+
         });
     }
 
     private void showToast(String message) {
+
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
     }
 
     private void signUp() {
@@ -102,55 +119,76 @@ public class SignUpActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+        firebaseFirestore.collection(KEY_COLLECTION_USERS)
+                        .get()
+                        .addOnCompleteListener(v -> {
+                           Boolean flag = true;
 
-        firebaseAuth.createUserWithEmailAndPassword(activitySignUpBinding.inputEmail.getText().toString(),
-                        activitySignUpBinding.inputPassword.getText().toString())
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                           for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()) {
+                               if (activitySignUpBinding.inputUserName.getText().toString().trim()
+                                       .equals(queryDocumentSnapshot.getString(KEY_USER_NAME))) {
+                                   flag = false;
+                               }
+                           }
 
-                        HashMap<String, Object> userData = new HashMap<>();
+                           if (flag) {
+                               firebaseAuth.createUserWithEmailAndPassword(activitySignUpBinding.inputEmail.getText().toString(),
+                                               activitySignUpBinding.inputPassword.getText().toString())
+                                       .addOnCompleteListener(task -> {
+                                           if (task.isSuccessful()) {
 
-                        userData.put(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
-                        userData.put(KEY_EMAIL, activitySignUpBinding.inputEmail.getText().toString());
-                        userData.put(KEY_IMAGE, encodedImage);
+                                               HashMap<String, Object> userData = new HashMap<>();
 
-                        firebaseFirestore.collection(KEY_COLLECTION_USERS)
-                                .add(userData)
-                                .addOnSuccessListener(documentReference -> {
-                                    preferenceManager.putString(KEY_USER_ID, documentReference.getId());
-                                    preferenceManager.putString(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
-                                    preferenceManager.putString(KEY_IMAGE, encodedImage);
-                                    preferenceManager.putString(KEY_PASSWORD, activitySignUpBinding.inputPassword.getText().toString());
-                                    loading(false);
-                                })
-                                .addOnFailureListener(e -> showToast(e.getMessage()));
+                                               userData.put(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
+                                               userData.put(KEY_EMAIL, activitySignUpBinding.inputEmail.getText().toString());
+                                               userData.put(KEY_IMAGE, encodedImage);
+
+                                               firebaseFirestore.collection(KEY_COLLECTION_USERS)
+                                                       .add(userData)
+                                                       .addOnSuccessListener(documentReference -> {
+                                                           preferenceManager.putString(KEY_USER_ID, documentReference.getId());
+                                                           preferenceManager.putString(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
+                                                           preferenceManager.putString(KEY_IMAGE, encodedImage);
+                                                           preferenceManager.putString(KEY_PASSWORD, activitySignUpBinding.inputPassword.getText().toString());
+
+                                                           showToast("Sign up is successful\n" +
+                                                                   "Verify your account");
+
+                                                           Intent intent = new Intent(getApplicationContext(), SignInActivity.class);
+                                                           startActivity(intent);
+                                                           finish();
+
+                                                           loading(false);
+                                                       })
+                                                       .addOnFailureListener(e -> showToast(e.getMessage()));
 
 
-                        showToast("Sign up is successful\n" +
-                                "Verify your account");
+                                           } else if (Objects.equals(
+                                                   Objects.requireNonNull(task.getException()).getClass(),
+                                                   FirebaseAuthUserCollisionException.class)) {
+                                               loading(false);
+                                               showToast("Email already used");
 
-                        Intent intent = new Intent(getApplicationContext(), SignInActivity.class);
-                        startActivity(intent);
-                        finish();
+                                           } else if (Objects.equals(
+                                                   Objects.requireNonNull(task.getException()).getClass(),
+                                                   FirebaseAuthWeakPasswordException.class)) {
+                                               loading(false);
+                                               showToast("Password is short");
 
-                    } else if (Objects.equals(
-                            Objects.requireNonNull(task.getException()).getClass(),
-                            FirebaseAuthUserCollisionException.class)) {
-                        loading(false);
-                        showToast("Email already used");
+                                           } else {
+                                               showToast("Sign up isn't successful");
+                                               Log.d("HELLO", String.valueOf(task.getException()));
+                                               loading(false);
+                                           }
+                                       });
+                           }
 
-                    } else if (Objects.equals(
-                            Objects.requireNonNull(task.getException()).getClass(),
-                            FirebaseAuthWeakPasswordException.class)) {
-                        loading(false);
-                        showToast("Password is short");
-
-                    } else {
-                        showToast("Sign up isn't successful");
-                        Log.d("HELLO", String.valueOf(task.getException()));
-                        loading(false);
-                    }
-                });
+                           else {
+                               showToast("This username is already used");
+                               loading(false);
+                               return;
+                           }
+                        });
     }
 
     private Boolean isValidSignUpDetails() {

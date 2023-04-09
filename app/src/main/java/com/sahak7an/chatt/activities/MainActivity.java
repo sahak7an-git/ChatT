@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         preferenceManager = new PreferenceManager(getApplicationContext());
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
 
@@ -49,31 +50,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+
         activityMainBinding.imageSignOut.setOnClickListener(v -> signOut());
+
         activityMainBinding.newChat.setOnClickListener(v -> {
+
             startActivity(new Intent(getApplicationContext(), UsersActivity.class));
+
         });
+
     }
 
     private void loadUserDetails() {
+
         activityMainBinding.textName.setText(preferenceManager.getString(KEY_USER_NAME));
 
         byte[] bytes = Base64.decode(preferenceManager.getString(KEY_IMAGE), Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
         activityMainBinding.imageProfile.setImageBitmap(bitmap);
+
     }
 
     private void showToast(String message) {
+
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+
     }
 
     private void getToken() {
+
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
+
     }
 
     private void updateToken(String token) {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
         DocumentReference documentReference =
@@ -82,22 +93,31 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         documentReference.update(KEY_FCM_TOKEN, token)
-                .addOnSuccessListener(unused -> showToast("Token updated successfully"))
                 .addOnFailureListener(e -> {
-                    firebaseUser.delete();
+
+                    if (firebaseUser != null) {
+
+                        firebaseUser.delete();
+
+                    }
+
                     preferenceManager.clear();
+
                     showToast("Please Sign in again\n " +
                             "Your account will be deleted\n" +
-                            "    Connection Error    ");
+                            "    Or connection Error    ");
 
                     startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                     finish();
+
                 });
     }
 
     private void signOut() {
+
         showToast("Signing out...");
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+
         DocumentReference documentReference =
                 firebaseFirestore.collection(KEY_COLLECTION_USERS).document(
                         preferenceManager.getString(KEY_USER_ID)
@@ -108,11 +128,28 @@ public class MainActivity extends AppCompatActivity {
 
         documentReference.update(updates)
                 .addOnSuccessListener(unused -> {
+
                     preferenceManager.clear();
                     startActivity(new Intent(getApplicationContext(), SignInActivity.class));
                     finish();
+
                 })
-                .addOnFailureListener(e -> showToast("Unable to sign out"));
+                .addOnFailureListener(e -> {
+
+                    showToast("Unable to sign out");
+
+                    if (firebaseUser != null) {
+
+                        firebaseUser.delete();
+
+                    }
+
+                    preferenceManager.clear();
+
+                    startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                    finish();
+
+                });
 
     }
 }

@@ -27,31 +27,40 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         ItemContainerUserBinding itemContainerUserBinding;
 
         UserViewHolder(ItemContainerUserBinding itemContainerUserBinding) {
+
             super(itemContainerUserBinding.getRoot());
             this.itemContainerUserBinding = itemContainerUserBinding;
+
         }
 
         void setUserData(User user) {
+
             itemContainerUserBinding.textUserName.setText(user.userName);
             itemContainerUserBinding.textEmail.setText(user.email);
             itemContainerUserBinding.imageProfile.setImageBitmap(getUserImage(user.image));
+
         }
     }
 
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         ItemContainerUserBinding itemContainerUserBinding = ItemContainerUserBinding.inflate(
+
                 LayoutInflater.from(parent.getContext()),
                 parent,
                 false
+
         );
 
         return new UserViewHolder(itemContainerUserBinding);
+
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+
         holder.setUserData(userList.get(position));
 
     }
@@ -62,7 +71,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
     }
 
     private Bitmap getUserImage(String encodedImage) {
+
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
     }
 }

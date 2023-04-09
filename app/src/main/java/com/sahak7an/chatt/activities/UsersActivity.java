@@ -41,7 +41,9 @@ public class UsersActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+
         activityUsersBinding.imageBack.setOnClickListener(v -> onBackPressed());
+
     }
 
     private void getUsers() {
@@ -55,11 +57,15 @@ public class UsersActivity extends AppCompatActivity {
                     String currentUserId = preferenceManager.getString(KEY_USER_ID);
 
                     if (task.isSuccessful() && task.getResult() != null) {
+
                         List<User> userList = new ArrayList<>();
 
                         for (QueryDocumentSnapshot queryDocumentSnapshot: task.getResult()) {
+
                             if (currentUserId.equals(queryDocumentSnapshot.getId())) {
+
                                 continue;
+
                             }
 
                             User user = new User();
@@ -68,33 +74,48 @@ public class UsersActivity extends AppCompatActivity {
                             user.image = queryDocumentSnapshot.getString(KEY_IMAGE);
                             user.token = queryDocumentSnapshot.getString(KEY_FCM_TOKEN);
                             userList.add(user);
+
                         }
 
                         if (userList.size() > 0) {
+
                             UsersAdapter usersAdapter = new UsersAdapter(userList);
                             activityUsersBinding.usersRecyclerView.setAdapter(usersAdapter);
 
                             activityUsersBinding.usersRecyclerView.setVisibility(View.VISIBLE);
+
                         } else {
+
                             showErrorMessage();
+
                         }
+
                     } else {
+
                         showErrorMessage();
+
                     }
                 });
 
     }
 
     private void showErrorMessage() {
+
         activityUsersBinding.textErrorMessage.setText(String.format("%s", "No User available"));
         activityUsersBinding.textErrorMessage.setVisibility(View.VISIBLE);
+
     }
 
     private void loading(Boolean isLoading) {
+
         if (isLoading) {
+
             activityUsersBinding.progressBar.setVisibility(View.VISIBLE);
+
         } else {
+
             activityUsersBinding.progressBar.setVisibility(View.INVISIBLE);
+
         }
     }
 }
