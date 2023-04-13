@@ -17,6 +17,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ActivitySignUpBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
@@ -80,6 +83,8 @@ public class SignUpActivity extends AppCompatActivity {
 
         preferenceManager = new PreferenceManager(getApplicationContext());
         activitySignUpBinding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        changeStatusBarColor();
+
         setContentView(activitySignUpBinding.getRoot());
 
         setListeners();
@@ -122,7 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
         firebaseFirestore.collection(KEY_COLLECTION_USERS)
                         .get()
                         .addOnCompleteListener(v -> {
-                           Boolean flag = true;
+                           boolean flag = true;
 
                            for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()) {
                                if (activitySignUpBinding.inputUserName.getText().toString().trim()
@@ -139,7 +144,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                                                HashMap<String, Object> userData = new HashMap<>();
 
-                                               userData.put(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
+                                               userData.put(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString().trim());
                                                userData.put(KEY_EMAIL, activitySignUpBinding.inputEmail.getText().toString());
                                                userData.put(KEY_IMAGE, encodedImage);
 
@@ -147,7 +152,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                        .add(userData)
                                                        .addOnSuccessListener(documentReference -> {
                                                            preferenceManager.putString(KEY_USER_ID, documentReference.getId());
-                                                           preferenceManager.putString(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString());
+                                                           preferenceManager.putString(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString().trim());
                                                            preferenceManager.putString(KEY_IMAGE, encodedImage);
                                                            preferenceManager.putString(KEY_PASSWORD, activitySignUpBinding.inputPassword.getText().toString());
 
@@ -230,15 +235,22 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private String encodedImage(Bitmap bitmap) {
-        int previewWidth = 200;
+        int previewWidth = 250;
         int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
 
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+        previewBitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    private void changeStatusBarColor() {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white, getTheme()));
     }
 
 }

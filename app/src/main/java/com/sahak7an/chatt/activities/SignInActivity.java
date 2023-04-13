@@ -10,9 +10,9 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_VERIFIED;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.TimeUtils;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ActivitySignInBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
@@ -33,7 +34,6 @@ public class SignInActivity extends AppCompatActivity {
 
     FirebaseUser firebaseUser;
     private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firebaseFirestore;
     private PreferenceManager preferenceManager;
     private ActivitySignInBinding activitySignInBinding;
 
@@ -46,6 +46,7 @@ public class SignInActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         preferenceManager = new PreferenceManager(getApplicationContext());
         activitySignInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
+        changeStatusBarColor();
 
         setContentView(activitySignInBinding.getRoot());
         setListeners();
@@ -184,7 +185,7 @@ public class SignInActivity extends AppCompatActivity {
             firebaseUser.reload();
 
             try {
-                TimeUnit.MILLISECONDS.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(200);
 
                 firebaseUser.reload();
 
@@ -215,7 +216,7 @@ public class SignInActivity extends AppCompatActivity {
 
             try {
 
-                TimeUnit.MILLISECONDS.sleep(50);
+                TimeUnit.MILLISECONDS.sleep(200);
 
                 firebaseUser.reload();
 
@@ -244,6 +245,13 @@ public class SignInActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    private void changeStatusBarColor() {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white, getTheme()));
     }
 
 }

@@ -83,7 +83,7 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/_9ssp"
                 android:textStyle="bold"
-                app:cornerRadius="@dimen/_8sdp"/>
+                app:cornerRadius="@dimen/_24sdp"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

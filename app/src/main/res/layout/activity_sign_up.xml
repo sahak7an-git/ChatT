@@ -34,11 +34,12 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/imageProfile"
-                android:layout_width="@dimen/_80sdp"
-                android:layout_height="@dimen/_80sdp"
+                android:layout_width="@dimen/_70sdp"
+                android:layout_height="@dimen/_70sdp"
                 android:background="@drawable/background_input"
                 android:scaleType="centerCrop"
-                app:riv_oval="true"/>
+                app:riv_oval="true"
+                app:riv_corner_radius="@dimen/_24sdp"/>
 
             <TextView
                 android:id="@+id/textAddImage"
@@ -130,7 +131,7 @@
                 android:textColor="@color/white"
                 android:textSize="@dimen/_9ssp"
                 android:textStyle="bold"
-                app:cornerRadius="@dimen/_8sdp"/>
+                app:cornerRadius="@dimen/_24sdp"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"

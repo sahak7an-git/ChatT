@@ -11,8 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,6 +24,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ActivityMainBinding;
 import com.sahak7an.chatt.models.User;
 import com.sahak7an.chatt.utilities.PreferenceManager;
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         preferenceManager = new PreferenceManager(getApplicationContext());
         activityMainBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        changeStatusBarColor();
 
         setContentView(activityMainBinding.getRoot());
 
@@ -151,5 +156,12 @@ public class MainActivity extends AppCompatActivity {
 
                 });
 
+    }
+
+    private void changeStatusBarColor() {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.primary, getTheme()));
     }
 }

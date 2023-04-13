@@ -4,25 +4,33 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.adapters.UsersAdapter;
 import com.sahak7an.chatt.databinding.ActivityUsersBinding;
+import com.sahak7an.chatt.listeners.UserListener;
 import com.sahak7an.chatt.models.User;
+import com.sahak7an.chatt.utilities.Constants;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersActivity extends AppCompatActivity {
+public class UsersActivity extends AppCompatActivity implements UserListener {
 
     private PreferenceManager preferenceManager;
     private ActivityUsersBinding activityUsersBinding;
@@ -33,6 +41,7 @@ public class UsersActivity extends AppCompatActivity {
 
         preferenceManager = new PreferenceManager(getApplicationContext());
         activityUsersBinding = ActivityUsersBinding.inflate(getLayoutInflater());
+        changeStatusBarColor();
 
         setContentView(activityUsersBinding.getRoot());
 
@@ -79,7 +88,7 @@ public class UsersActivity extends AppCompatActivity {
 
                         if (userList.size() > 0) {
 
-                            UsersAdapter usersAdapter = new UsersAdapter(userList);
+                            UsersAdapter usersAdapter = new UsersAdapter(userList, this);
                             activityUsersBinding.usersRecyclerView.setAdapter(usersAdapter);
 
                             activityUsersBinding.usersRecyclerView.setVisibility(View.VISIBLE);
@@ -117,5 +126,21 @@ public class UsersActivity extends AppCompatActivity {
             activityUsersBinding.progressBar.setVisibility(View.INVISIBLE);
 
         }
+    }
+
+    private void changeStatusBarColor() {
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.primary, getTheme()));
+    }
+
+    @Override
+    public void onUserClicked(User user) {
+        Log.d("Hello", String.valueOf(user.userName));
+        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+        intent.putExtra(KEY_USER, user);
+        startActivity(intent);
+        finish();
     }
 }
