@@ -60,7 +60,13 @@ public class SignInActivity extends AppCompatActivity {
 
         activitySignInBinding.buttonSignIn.setOnClickListener(v -> {
             if (isValidSignInDetails()) {
-                firebaseUser.reload();
+
+                if (firebaseUser != null) {
+
+                    firebaseUser.reload();
+
+                }
+
                 isVerified();
             }
         });
@@ -118,11 +124,17 @@ public class SignInActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     loading(false);
 
+
                     if (task.isSuccessful()) {
 
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-                        firestore.collection(KEY_COLLECTION_USERS)
+                        if (firebaseUser != null) {
+
+                            if (firebaseUser.isEmailVerified()) {
+
+                                firestore.collection(KEY_COLLECTION_USERS)
                                         .whereEqualTo(KEY_EMAIL, activitySignInBinding.inputEmail.getText().toString())
                                         .get()
                                         .addOnCompleteListener(v -> {
@@ -159,6 +171,10 @@ public class SignInActivity extends AppCompatActivity {
                                             }
                                         });
 
+                            }
+
+                        }
+
                     } else if (Objects.equals(
                             Objects.requireNonNull(task.getException()).getClass(),
                             FirebaseAuthInvalidUserException.class)) {
@@ -185,7 +201,7 @@ public class SignInActivity extends AppCompatActivity {
             firebaseUser.reload();
 
             try {
-                TimeUnit.MILLISECONDS.sleep(200);
+                TimeUnit.MILLISECONDS.sleep(100);
 
                 firebaseUser.reload();
 
@@ -216,7 +232,7 @@ public class SignInActivity extends AppCompatActivity {
 
             try {
 
-                TimeUnit.MILLISECONDS.sleep(200);
+                TimeUnit.MILLISECONDS.sleep(100);
 
                 firebaseUser.reload();
 
@@ -230,7 +246,7 @@ public class SignInActivity extends AppCompatActivity {
 
                     }
 
-                }  else {
+                } else {
 
                     showToast("Verify your account");
                     firebaseUser.sendEmailVerification();

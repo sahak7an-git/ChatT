@@ -5,5 +5,8 @@
 
     <solid android:color="@color/input_background"/>
     <corners android:radius="@dimen/_16sdp"/>
+    <stroke
+        android:color="@color/error"
+        android:width="@dimen/_3sdp"/>
 
 </shape>

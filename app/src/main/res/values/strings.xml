@@ -8,6 +8,8 @@
     <string name="create_new_account">Create new account</string>
     <string name="add_image">Add Image</string>
     <string name="name">Name</string>
+    <string name="online">Online</string>"
+    <string name="offline">Offline</string>
     <string name="confirm_password">Confirm password</string>
     <string name="sign_up">Sign Up</string>
     <string name="username">Username</string>

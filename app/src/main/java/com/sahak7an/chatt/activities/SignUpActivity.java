@@ -14,7 +14,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.Window;
@@ -28,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.sahak7an.chatt.R;
@@ -127,16 +125,22 @@ public class SignUpActivity extends AppCompatActivity {
         firebaseFirestore.collection(KEY_COLLECTION_USERS)
                         .get()
                         .addOnCompleteListener(v -> {
+
                            boolean flag = true;
 
                            for (QueryDocumentSnapshot queryDocumentSnapshot: v.getResult()) {
+
                                if (activitySignUpBinding.inputUserName.getText().toString().trim()
                                        .equals(queryDocumentSnapshot.getString(KEY_USER_NAME))) {
+
                                    flag = false;
+
                                }
+
                            }
 
                            if (flag) {
+
                                firebaseAuth.createUserWithEmailAndPassword(activitySignUpBinding.inputEmail.getText().toString(),
                                                activitySignUpBinding.inputPassword.getText().toString())
                                        .addOnCompleteListener(task -> {
@@ -172,26 +176,32 @@ public class SignUpActivity extends AppCompatActivity {
                                                    Objects.requireNonNull(task.getException()).getClass(),
                                                    FirebaseAuthUserCollisionException.class)) {
                                                loading(false);
+
                                                showToast("Email already used");
 
                                            } else if (Objects.equals(
                                                    Objects.requireNonNull(task.getException()).getClass(),
                                                    FirebaseAuthWeakPasswordException.class)) {
+
                                                loading(false);
                                                showToast("Password is short");
 
                                            } else {
+
                                                showToast("Sign up isn't successful");
-                                               Log.d("HELLO", String.valueOf(task.getException()));
                                                loading(false);
+
                                            }
+
                                        });
+
                            }
 
                            else {
+
                                showToast("This username is already used");
                                loading(false);
-                               return;
+
                            }
                         });
     }
@@ -199,42 +209,67 @@ public class SignUpActivity extends AppCompatActivity {
     private Boolean isValidSignUpDetails() {
 
         if (encodedImage == null) {
+
             showToast("Select profile image");
             return false;
+
         } else if (activitySignUpBinding.inputUserName.getText().toString().trim().isEmpty()) {
-            showToast("Enter name");
+
+            showToast("Enter username");
             return false;
+
         } else if (activitySignUpBinding.inputEmail.getText().toString().trim().isEmpty()) {
+
             showToast("Enter email");
             return false;
+
         } else if (!Patterns.EMAIL_ADDRESS.matcher(activitySignUpBinding.inputEmail.getText().toString()).matches()) {
+
             showToast("Enter valid email!");
             return false;
+
         } else if (activitySignUpBinding.inputPassword.getText().toString().trim().isEmpty()) {
+
             showToast("Enter password");
             return false;
+
         } else if (activitySignUpBinding.inputConfirmPassword.getText().toString().trim().isEmpty()) {
+
             showToast("Confirm password");
             return false;
-        } else if (!activitySignUpBinding.inputPassword.getText().toString().equals(activitySignUpBinding.inputConfirmPassword.getText().toString())) {
+
+        } else if (!activitySignUpBinding.inputPassword.getText().toString().
+                equals(activitySignUpBinding.inputConfirmPassword.getText().toString())) {
+
             showToast("Passwords doesn't matching");
             return false;
+
         } else {
+
             return true;
+
         }
+
     }
 
     private void loading(Boolean isLoading) {
+
         if (isLoading) {
+
             activitySignUpBinding.buttonSignUp.setVisibility(View.INVISIBLE);
             activitySignUpBinding.progressBar.setVisibility(View.VISIBLE);
+
         } else {
+
             activitySignUpBinding.buttonSignUp.setVisibility(View.VISIBLE);
             activitySignUpBinding.progressBar.setVisibility(View.INVISIBLE);
+
         }
+
     }
 
     private String encodedImage(Bitmap bitmap) {
+
         int previewWidth = 250;
         int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
 
@@ -244,13 +279,16 @@ public class SignUpActivity extends AppCompatActivity {
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);
+
     }
 
     private void changeStatusBarColor() {
+
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(this.getResources().getColor(R.color.white, getTheme()));
+
     }
 
 }
