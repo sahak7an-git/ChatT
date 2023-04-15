@@ -222,7 +222,12 @@ public class SignInActivity extends AppCompatActivity {
 
             }
 
+        } else {
+
+            signIn();
+
         }
+
     }
 
     private void autoLogIn() {
