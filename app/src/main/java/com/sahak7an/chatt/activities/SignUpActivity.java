@@ -3,7 +3,6 @@ package com.sahak7an.chatt.activities;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
-import static com.sahak7an.chatt.utilities.Constants.KEY_PASSWORD;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
 
@@ -13,6 +12,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Patterns;
 import android.view.View;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -107,6 +109,244 @@ public class SignUpActivity extends AppCompatActivity {
             pickImage.launch(intent);
 
         });
+
+        activitySignUpBinding.inputUserName.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (encodedImage == null) {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText(R.string.add_image);
+
+                } else {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText("");
+
+                }
+
+                if (charSequence.length() > 3) {
+
+                    activitySignUpBinding.inputUserName.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textUserName.setText("");
+
+                }   else {
+
+                    activitySignUpBinding.inputUserName.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textUserName.setText(R.string.short_username);
+
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
+        activitySignUpBinding.inputEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (encodedImage == null) {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText(R.string.add_image);
+
+                } else {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText("");
+
+                }
+
+                if (Patterns.EMAIL_ADDRESS.matcher(charSequence.toString()).matches()) {
+
+                    activitySignUpBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textEmail.setText("");
+
+                } else {
+
+                    activitySignUpBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textEmail.setText(R.string.unknown_email);
+
+                }
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
+        activitySignUpBinding.inputPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (encodedImage == null) {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText(R.string.add_image);
+
+                } else {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText("");
+
+                }
+
+                if (charSequence.length() < 6) {
+
+                    activitySignUpBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textPassword.setText(R.string.poor_password);
+
+                } else if (charSequence.length() <= 8) {
+
+                    activitySignUpBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_password_input
+                    ));
+
+                    activitySignUpBinding.textPassword.setText(R.string.fair_password);
+
+                } else {
+
+                    activitySignUpBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textPassword.setText("");
+
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
+        activitySignUpBinding.inputConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (encodedImage == null) {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText(R.string.add_image);
+
+                } else {
+
+                    activitySignUpBinding.imageProfile.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textAddImage.setText("");
+
+                }
+
+                if (activitySignUpBinding.inputPassword.getText().toString().
+                        equals(activitySignUpBinding.inputConfirmPassword.getText().toString())) {
+
+                    activitySignUpBinding.inputConfirmPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignUpBinding.textPassword.setText("");
+                    activitySignUpBinding.textConfirmPassword.setText("");
+
+                } else {
+
+                    activitySignUpBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.inputConfirmPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignUpBinding.textPassword.setText(R.string.match_password);
+                    activitySignUpBinding.textConfirmPassword.setText(R.string.match_password);
+
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
     }
 
     private void showToast(String message) {
@@ -158,7 +398,6 @@ public class SignUpActivity extends AppCompatActivity {
                                                            preferenceManager.putString(KEY_USER_ID, documentReference.getId());
                                                            preferenceManager.putString(KEY_USER_NAME, activitySignUpBinding.inputUserName.getText().toString().trim());
                                                            preferenceManager.putString(KEY_IMAGE, encodedImage);
-                                                           preferenceManager.putString(KEY_PASSWORD, activitySignUpBinding.inputPassword.getText().toString());
 
                                                            showToast("Sign up is successful\n" +
                                                                    "Verify your account");
@@ -168,6 +407,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                            finish();
 
                                                            loading(false);
+
                                                        })
                                                        .addOnFailureListener(e -> showToast(e.getMessage()));
 
@@ -177,6 +417,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                    FirebaseAuthUserCollisionException.class)) {
                                                loading(false);
 
+                                               inputErrorVisualisation(2);
                                                showToast("Email already used");
 
                                            } else if (Objects.equals(
@@ -199,6 +440,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                            else {
 
+                               inputErrorVisualisation(1);
                                showToast("This username is already used");
                                loading(false);
 
@@ -288,6 +530,38 @@ public class SignUpActivity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(this.getResources().getColor(R.color.white, getTheme()));
+
+    }
+
+    private void inputErrorVisualisation(int code) {
+
+       if (code == 1) {
+
+            activitySignUpBinding.inputUserName.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_incorrect_input
+            ));
+
+            activitySignUpBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_correct_input
+            ));
+
+            activitySignUpBinding.textEmail.setText("");
+            activitySignUpBinding.textUserName.setText(R.string.used_username);
+
+        } else if (code == 2) {
+
+            activitySignUpBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_incorrect_input
+            ));
+
+            activitySignUpBinding.inputUserName.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_correct_input
+            ));
+
+            activitySignUpBinding.textEmail.setText(R.string.used_email);
+            activitySignUpBinding.textUserName.setText("");
+
+        }
 
     }
 

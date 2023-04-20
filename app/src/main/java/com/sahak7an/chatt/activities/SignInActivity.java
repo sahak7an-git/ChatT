@@ -10,12 +10,16 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_VERIFIED;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Patterns;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -46,6 +50,7 @@ public class SignInActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         preferenceManager = new PreferenceManager(getApplicationContext());
         activitySignInBinding = ActivitySignInBinding.inflate(getLayoutInflater());
+
         changeStatusBarColor();
 
         setContentView(activitySignInBinding.getRoot());
@@ -70,6 +75,79 @@ public class SignInActivity extends AppCompatActivity {
                 isVerified();
             }
         });
+
+        activitySignInBinding.inputEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (Patterns.EMAIL_ADDRESS.matcher(charSequence.toString()).matches()) {
+
+                    activitySignInBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignInBinding.textEmail.setText("");
+
+                } else {
+
+                    activitySignInBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignInBinding.textEmail.setText(R.string.unknown_email);
+
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
+        activitySignInBinding.inputPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (charSequence.length() < 6) {
+
+                    activitySignInBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_incorrect_input
+                    ));
+
+                    activitySignInBinding.textPassword.setText(R.string.poor_password);
+
+                } else {
+
+                    activitySignInBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                            getApplicationContext(), R.drawable.background_correct_input
+                    ));
+
+                    activitySignInBinding.textPassword.setText("");
+
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+
+        });
+
     }
 
     private void loading(Boolean isLoading) {
@@ -147,9 +225,9 @@ public class SignInActivity extends AppCompatActivity {
                                                 preferenceManager.putString(KEY_IMAGE, documentSnapshot.getString(KEY_IMAGE));
                                                 preferenceManager.putString(KEY_EMAIL, documentSnapshot.getString(KEY_EMAIL));
 
-                                                showToast("Sign in successful");
                                                 preferenceManager.putBoolean(KEY_VERIFIED, true);
                                                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
+
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 startActivity(intent);
                                                 finish();
@@ -179,12 +257,14 @@ public class SignInActivity extends AppCompatActivity {
                             Objects.requireNonNull(task.getException()).getClass(),
                             FirebaseAuthInvalidUserException.class)) {
 
+                        inputErrorVisualisation(1);
                         showToast("Invalid Email");
 
                     } else if (Objects.equals(
                             task.getException().getClass(),
                             FirebaseAuthInvalidCredentialsException.class)) {
 
+                        inputErrorVisualisation(2);
                         showToast("Incorrect Password");
 
                     } else {
@@ -198,9 +278,13 @@ public class SignInActivity extends AppCompatActivity {
     private void isVerified() {
 
         if (firebaseUser != null) {
+
             firebaseUser.reload();
 
             try {
+
+                firebaseUser.reload();
+
                 TimeUnit.MILLISECONDS.sleep(100);
 
                 firebaseUser.reload();
@@ -236,6 +320,8 @@ public class SignInActivity extends AppCompatActivity {
             firebaseUser.reload();
 
             try {
+
+                firebaseUser.reload();
 
                 TimeUnit.MILLISECONDS.sleep(100);
 
@@ -273,6 +359,38 @@ public class SignInActivity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(this.getResources().getColor(R.color.white, getTheme()));
+    }
+
+    private void inputErrorVisualisation(int code) {
+
+        if (code == 1) {
+
+            activitySignInBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_incorrect_input
+            ));
+
+            activitySignInBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_correct_input
+            ));
+
+            activitySignInBinding.textPassword.setText("");
+            activitySignInBinding.textEmail.setText(R.string.unknown_email);
+
+        } else if (code == 2) {
+
+            activitySignInBinding.inputEmail.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_correct_input
+            ));
+
+            activitySignInBinding.inputPassword.setBackground(AppCompatResources.getDrawable(
+                    getApplicationContext(), R.drawable.background_incorrect_input
+            ));
+
+            activitySignInBinding.textEmail.setText("");
+            activitySignInBinding.textPassword.setText(R.string.wrong_password);
+
+        }
+
     }
 
 }
