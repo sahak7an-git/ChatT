@@ -25,6 +25,7 @@ import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,6 +51,7 @@ import java.util.List;
 
 public class MainActivity extends BaseActivity implements ConversationListener {
 
+    private int count = 0;
     private FirebaseUser firebaseUser;
     private List<ChatMessage> conversations;
     private PreferenceManager preferenceManager;
@@ -162,7 +164,36 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
         activityMainBinding.imageSignOut.setOnClickListener(v -> signOut());
 
-        activityMainBinding.newChat.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), UsersActivity.class)));
+        activityMainBinding.newChat.setOnClickListener(v ->
+                startActivity(new Intent(getApplicationContext(), UsersActivity.class)));
+
+        activityMainBinding.imageProfile.setOnClickListener(v -> {
+
+            if (count % 2 == 0) {
+
+                activityMainBinding.chatView.startAnimation(AnimationUtils.loadAnimation(
+                        getApplicationContext(), R.anim.move_down
+                ));
+
+                activityMainBinding.newChat.startAnimation(AnimationUtils.loadAnimation(
+                        getApplicationContext(), R.anim.move_down
+                ));
+
+            } else {
+
+                activityMainBinding.chatView.startAnimation(AnimationUtils.loadAnimation(
+                        getApplicationContext(), R.anim.move_up
+                ));
+
+                activityMainBinding.newChat.startAnimation(AnimationUtils.loadAnimation(
+                        getApplicationContext(), R.anim.move_up
+                ));
+
+            }
+            count++;
+
+
+        });
 
     }
 

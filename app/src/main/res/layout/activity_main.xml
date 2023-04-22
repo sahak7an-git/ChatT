@@ -50,14 +50,24 @@
         app:layout_constraintEnd_toStartOf="@id/imageSignOut"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
         app:layout_constraintTop_toTopOf="@id/imageProfile" />
-    
+
+    <View
+        android:id="@+id/constView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageProfile"/>
+
     <FrameLayout
+        android:id="@+id/chatView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/background_content_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageProfile">
+        app:layout_constraintTop_toBottomOf="@id/constView">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/conversationsRecyclerView"
@@ -69,16 +79,15 @@
             android:padding="25dp"
             android:visibility="gone"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-        
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="33dp"
             android:layout_height="33dp"
             android:layout_gravity="center"/>
-            
 
     </FrameLayout>
-    
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/newChat"
         android:layout_width="wrap_content"
