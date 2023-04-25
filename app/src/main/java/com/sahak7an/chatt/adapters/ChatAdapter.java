@@ -263,113 +263,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         if (chatMessages.get(position).senderId.equals(senderId)) {
 
-            if (position != 0 && position + 1 != getItemCount()) {
-
-                if (chatMessages.get(position).date.getSeconds() -
-                        chatMessages.get(position-1).date.getSeconds() <= 10
-                        && chatMessages.get(position - 1).senderId.equals(senderId)
-                        && chatMessages.get(position + 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_SENT_ROUND;
-
-                } else if (new Date().getSeconds() - chatMessages.get(position).date.getSeconds() <= 10
-                        && chatMessages.get(position - 1).senderId.equals(senderId)
-                        && chatMessages.get(position + 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_SENT_ROUND;
-
-                } else {
-
-                    if (!chatMessages.get(position + 1).senderId.equals(senderId)
-                            && !chatMessages.get(position - 1).senderId.equals(senderId)) {
-
-                        return VIEW_TYPE_SENT;
-
-                    } else if (!chatMessages.get(position + 1).senderId.equals(senderId)){
-
-                        return VIEW_TYPE_SENT_LAST;
-
-                    } else {
-
-                        return VIEW_TYPE_SENT;
-
-                    }
-
-                }
-
-            } else {
-
-                if (position + 1 == getItemCount()
-                        && !chatMessages.get(position - 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_SENT;
-
-                } else if (position + 1 == getItemCount()) {
-
-                    return VIEW_TYPE_SENT_LAST;
-
-                } else {
-
-                    return VIEW_TYPE_SENT;
-
-                }
-
-            }
+            return VIEW_TYPE_SENT;
 
         } else {
 
-            if (position != 0 && position + 1 != getItemCount()) {
+            return VIEW_TYPE_RECEIVER;
 
-                if (chatMessages.get(position).date.getSeconds() -
-                        chatMessages.get(position - 1).date.getSeconds() <= 10
-                        && !chatMessages.get(position - 1).senderId.equals(senderId)
-                        && !chatMessages.get(position + 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_RECEIVER_ROUND;
-
-                } else if (new Date().getSeconds() - chatMessages.get(position).date.getSeconds() <= 10
-                        && !chatMessages.get(position - 1).senderId.equals(senderId)
-                        && !chatMessages.get(position + 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_RECEIVER_ROUND;
-
-                } else {
-
-                    if (chatMessages.get(position + 1).senderId.equals(senderId)
-                            && chatMessages.get(position - 1).senderId.equals(senderId)) {
-
-                        return VIEW_TYPE_RECEIVER;
-
-                    } else if (chatMessages.get(position + 1).senderId.equals(senderId)){
-
-                        return VIEW_TYPE_RECEIVER_LAST;
-
-                    } else {
-
-                        return VIEW_TYPE_RECEIVER;
-
-                    }
-
-                }
-            } else {
-
-                if (position + 1 == getItemCount()
-                        && chatMessages.get(position - 1).senderId.equals(senderId)) {
-
-                    return VIEW_TYPE_RECEIVER;
-
-                } else if (position + 1 == getItemCount()){
-
-                    return VIEW_TYPE_RECEIVER_LAST;
-
-                }
-                else {
-
-                    return VIEW_TYPE_RECEIVER;
-
-                }
-
-            }
 
         }
 

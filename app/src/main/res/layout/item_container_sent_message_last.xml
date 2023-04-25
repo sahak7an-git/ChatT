@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/textMessage"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="15dp"
         android:paddingTop="10dp"
@@ -18,7 +18,7 @@
         android:paddingBottom="10dp"
         android:textColor="@color/white"
         android:textSize="17sp"
-        app:layout_constraintWidth_max="wrap"
+        android:maxWidth="@dimen/_220sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/background_sent_message_last"

@@ -3,6 +3,7 @@ package com.sahak7an.chatt.activities;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CHAT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATIONS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
+import static com.sahak7an.chatt.utilities.Constants.KEY_COUNT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;

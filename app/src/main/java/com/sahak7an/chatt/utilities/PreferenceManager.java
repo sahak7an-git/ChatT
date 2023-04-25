@@ -5,6 +5,8 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_PREFERENCE_NAME;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashMap;
+
 public class PreferenceManager {
 
     private final SharedPreferences sharedPreferences;
