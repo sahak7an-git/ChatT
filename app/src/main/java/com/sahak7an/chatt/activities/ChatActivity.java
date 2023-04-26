@@ -53,6 +53,7 @@ import java.util.Objects;
 
 public class ChatActivity extends BaseActivity {
 
+    int count = 0;
     private User receiverUser;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
@@ -82,6 +83,7 @@ public class ChatActivity extends BaseActivity {
                     chatMessage.receiverId = documentChange.getDocument().getString(KEY_RECEIVER_ID);
                     chatMessage.message = documentChange.getDocument().getString(KEY_MESSAGE);
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
+                    chatMessage.count = Objects.requireNonNull(documentChange.getDocument().get(KEY_COUNT)).hashCode();
                     chatMessages.add(chatMessage);
 
                 }
@@ -232,6 +234,117 @@ public class ChatActivity extends BaseActivity {
 
     private void sendMessage() {
 
+        if (conversionId != null) {
+
+            updateConversion(activityChatBinding.inputMessage.getText().toString());
+
+        } else {
+
+            HashMap<String, Object> conversion = new HashMap<>();
+            conversion.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
+            conversion.put(KEY_SENDER_USER_NAME, preferenceManager.getString(KEY_USER_NAME));
+            conversion.put(KEY_SENDER_IMAGE, preferenceManager.getString(KEY_IMAGE));
+            conversion.put(KEY_RECEIVER_ID, receiverUser.id);
+            conversion.put(KEY_RECEIVER_USER_NAME, receiverUser.userName);
+            conversion.put(KEY_RECEIVER_IMAGE, receiverUser.image);
+            conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString());
+            conversion.put(KEY_TIMESTAMP, new Date());
+            conversion.put(KEY_COUNT, 0);
+            addConversion(conversion);
+
+
+            HashMap<String, Object> message = new HashMap<>();
+            message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
+            message.put(KEY_RECEIVER_ID, receiverUser.id);
+            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString());
+            message.put(KEY_TIMESTAMP, new Date());
+            message.put(KEY_COUNT, count);
+
+            firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(message);
+
+        }
+
+        activityChatBinding.inputMessage.setText(null);
+    }
+
+    private void listenMessage() {
+
+        firebaseFirestore.collection(KEY_COLLECTION_CHAT)
+                .whereEqualTo(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID))
+                .whereEqualTo(KEY_RECEIVER_ID, receiverUser.id)
+                .addSnapshotListener(eventListener);
+
+        firebaseFirestore.collection(KEY_COLLECTION_CHAT)
+                .whereEqualTo(KEY_SENDER_ID, receiverUser.id)
+                .whereEqualTo(KEY_RECEIVER_ID, preferenceManager.getString(KEY_USER_ID))
+                .addSnapshotListener(eventListener);
+
+    }
+
+    private void listenAvailabilityOfReceiver() {
+
+        firebaseFirestore.collection(KEY_COLLECTION_USERS).document(receiverUser.id)
+                .addSnapshotListener(ChatActivity.this, ((value, error) -> {
+
+                    if (error != null) {
+
+                        return;
+
+                    }
+
+                    if (value != null) {
+
+                       if (value.getBoolean(KEY_IS_ONLINE) != null) {
+
+                           isReceiverOnline = Objects.requireNonNull(
+                                   value.getBoolean(KEY_IS_ONLINE)
+                           );
+
+                       }
+
+                       if (isReceiverOnline) {
+
+                           activityChatBinding.status.setBackground(AppCompatResources
+                                   .getDrawable(getApplicationContext(),
+                                           R.drawable.background_online_status));
+
+                           activityChatBinding.textStatus.setText(getString(R.string.online));
+
+                       } else {
+
+                           activityChatBinding.status.setBackground(AppCompatResources
+                                   .getDrawable(getApplicationContext(),
+                                           R.drawable.background_offline_status));
+
+                           activityChatBinding.textStatus.setText(getString(R.string.offline));
+
+                       }
+
+                    }
+
+                }));
+
+    }
+
+    private void init() {
+
+        preferenceManager = new PreferenceManager(getApplicationContext());
+        chatMessages = new ArrayList<>();
+
+        chatAdapter = new ChatAdapter(
+
+                preferenceManager.getString(KEY_USER_ID),
+                chatMessages
+
+        );
+
+        activityChatBinding.chatRecyclerView.setAdapter(chatAdapter);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+
+    }
+
+    private void sendMessage() {
+
         HashMap<String, Object> message = new HashMap<>();
         message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
         message.put(KEY_RECEIVER_ID, receiverUser.id);
@@ -273,7 +386,7 @@ public class ChatActivity extends BaseActivity {
             }
 
         });
-
+        
     }
 
     private void addConversion(HashMap<String, Object> conversion) {
@@ -293,6 +406,45 @@ public class ChatActivity extends BaseActivity {
                 KEY_LAST_MESSAGE, message,
                 KEY_TIMESTAMP, new Date()
         );
+
+    }
+
+    private void addConversion(HashMap<String, Object> conversion) {
+
+        firebaseFirestore.collection(KEY_COLLECTION_CONVERSATIONS)
+                .add(conversion)
+                .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
+
+    }
+
+    private void updateConversion(String message) {
+
+        DocumentReference documentReference =
+                firebaseFirestore.collection(KEY_COLLECTION_CONVERSATIONS).document(conversionId);
+
+        documentReference.get().addOnSuccessListener(v -> {
+
+            count = Objects.requireNonNull(v.get(KEY_COUNT)).hashCode() + 1;
+
+            documentReference.update(
+                    KEY_LAST_MESSAGE, message,
+                    KEY_TIMESTAMP, new Date(),
+                    KEY_COUNT, count
+            );
+
+
+            HashMap<String, Object> messageData = new HashMap<>();
+            messageData.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
+            messageData.put(KEY_RECEIVER_ID, receiverUser.id);
+            messageData.put(KEY_MESSAGE, message);
+            messageData.put(KEY_TIMESTAMP, new Date());
+            messageData.put(KEY_COUNT, count);
+
+            firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(messageData);
+
+        });
+
+
 
     }
 
