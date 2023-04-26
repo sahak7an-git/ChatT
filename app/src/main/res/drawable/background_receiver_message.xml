@@ -6,8 +6,8 @@
     <solid android:color="@color/received_message_background"/>
 
     <corners
-        android:topLeftRadius="@dimen/_24sdp"
-        android:topRightRadius="@dimen/_24sdp"
-        android:bottomRightRadius="@dimen/_24sdp"/>
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp"
+        android:bottomRightRadius="20dp"/>
 
 </shape>
