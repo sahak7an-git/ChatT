@@ -1,13 +1,9 @@
 package com.sahak7an.chatt.firebase;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import java.util.Objects;
 
 public class MessagingService extends FirebaseMessagingService {
 

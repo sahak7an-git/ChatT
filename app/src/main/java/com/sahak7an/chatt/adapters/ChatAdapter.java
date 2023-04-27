@@ -14,7 +14,6 @@ import com.sahak7an.chatt.databinding.ItemContainerSentMessageLastBinding;
 import com.sahak7an.chatt.databinding.ItemContainerSentMessageRoundBinding;
 import com.sahak7an.chatt.models.ChatMessage;
 
-import java.util.Date;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -263,12 +262,83 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         if (chatMessages.get(position).senderId.equals(senderId)) {
 
-            return VIEW_TYPE_SENT;
+            if (position == 0) {
+
+                if (position == chatMessages.size() - 1) {
+
+                    return VIEW_TYPE_SENT_LAST;
+
+                } else if (chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_SENT;
+
+                } else {
+
+                    return VIEW_TYPE_SENT_LAST;
+
+                }
+
+            } else if(position == chatMessages.size() - 1) {
+
+                return VIEW_TYPE_SENT_LAST;
+
+            } else {
+
+                if (!chatMessages.get(position - 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_SENT;
+
+                } else if (chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_SENT_ROUND;
+
+                } else {
+
+                    return VIEW_TYPE_SENT_LAST;
+
+                }
+
+            }
 
         } else {
 
-            return VIEW_TYPE_RECEIVER;
+            if (position == 0) {
 
+                if (position == chatMessages.size() - 1) {
+
+                    return VIEW_TYPE_RECEIVER_LAST;
+
+                } else if (!chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_RECEIVER;
+
+                } else {
+
+                    return VIEW_TYPE_RECEIVER_LAST;
+
+                }
+
+            } else if(position == chatMessages.size() - 1) {
+
+                return VIEW_TYPE_RECEIVER_LAST;
+
+            } else {
+
+                if (chatMessages.get(position - 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_RECEIVER;
+
+                } else if (!chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                    return VIEW_TYPE_RECEIVER_ROUND;
+
+                } else {
+
+                    return VIEW_TYPE_RECEIVER_LAST;
+
+                }
+
+            }
 
         }
 

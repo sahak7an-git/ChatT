@@ -53,7 +53,7 @@ import java.util.Objects;
 
 public class ChatActivity extends BaseActivity {
 
-    int count = 0;
+    private int count = 0;
     private User receiverUser;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
@@ -90,7 +90,7 @@ public class ChatActivity extends BaseActivity {
 
             }
 
-            chatMessages.sort(Comparator.comparing(obj -> obj.date));
+            chatMessages.sort(Comparator.comparing(obj -> obj.count));
 
             if (count == 0) {
 
@@ -118,12 +118,14 @@ public class ChatActivity extends BaseActivity {
     };
 
     private final OnCompleteListener<QuerySnapshot> conversationOnCompleteListener = task -> {
+
         if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
 
             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
             conversionId = documentSnapshot.getId();
 
         }
+
     };
 
     @Override
@@ -240,6 +242,15 @@ public class ChatActivity extends BaseActivity {
 
         } else {
 
+            HashMap<String, Object> message = new HashMap<>();
+            message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
+            message.put(KEY_RECEIVER_ID, receiverUser.id);
+            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString());
+            message.put(KEY_TIMESTAMP, new Date());
+            message.put(KEY_COUNT, count);
+
+            firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(message);
+
             HashMap<String, Object> conversion = new HashMap<>();
             conversion.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
             conversion.put(KEY_SENDER_USER_NAME, preferenceManager.getString(KEY_USER_NAME));
@@ -249,18 +260,8 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_RECEIVER_IMAGE, receiverUser.image);
             conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString());
             conversion.put(KEY_TIMESTAMP, new Date());
-            conversion.put(KEY_COUNT, 0);
+            conversion.put(KEY_COUNT, count);
             addConversion(conversion);
-
-
-            HashMap<String, Object> message = new HashMap<>();
-            message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
-            message.put(KEY_RECEIVER_ID, receiverUser.id);
-            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString());
-            message.put(KEY_TIMESTAMP, new Date());
-            message.put(KEY_COUNT, count);
-
-            firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(message);
 
         }
 
