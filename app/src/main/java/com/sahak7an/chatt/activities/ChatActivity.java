@@ -23,12 +23,15 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentChange;
@@ -40,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.adapters.ChatAdapter;
 import com.sahak7an.chatt.databinding.ActivityChatBinding;
+import com.sahak7an.chatt.dialogs.ImageProfileDialog;
 import com.sahak7an.chatt.models.ChatMessage;
 import com.sahak7an.chatt.models.User;
 import com.sahak7an.chatt.utilities.PreferenceManager;
@@ -52,9 +56,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class ChatActivity extends BaseActivity {
-
     private int count = 0;
     private User receiverUser;
+    private boolean flag = true;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
     private List<ChatMessage> chatMessages;
@@ -81,7 +85,7 @@ public class ChatActivity extends BaseActivity {
                     ChatMessage chatMessage = new ChatMessage();
                     chatMessage.senderId = documentChange.getDocument().getString(KEY_SENDER_ID);
                     chatMessage.receiverId = documentChange.getDocument().getString(KEY_RECEIVER_ID);
-                    chatMessage.message = documentChange.getDocument().getString(KEY_MESSAGE);
+                    chatMessage.message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_MESSAGE)).strip();
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
                     chatMessage.count = Objects.requireNonNull(documentChange.getDocument().get(KEY_COUNT)).hashCode();
                     chatMessages.add(chatMessage);
@@ -232,6 +236,36 @@ public class ChatActivity extends BaseActivity {
         activityChatBinding.chatRecyclerView.setAdapter(chatAdapter);
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+        activityChatBinding.inputMessage.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                changeLayoutButton(charSequence.length() > 0);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        activityChatBinding.receiverImage.setOnClickListener(v -> {
+
+            if (flag) {
+
+                showDialog();
+
+            }
+
+        });
+
     }
 
     private void sendMessage() {
@@ -245,7 +279,7 @@ public class ChatActivity extends BaseActivity {
             HashMap<String, Object> message = new HashMap<>();
             message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
             message.put(KEY_RECEIVER_ID, receiverUser.id);
-            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString());
+            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
             message.put(KEY_TIMESTAMP, new Date());
             message.put(KEY_COUNT, count);
 
@@ -258,7 +292,7 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_RECEIVER_ID, receiverUser.id);
             conversion.put(KEY_RECEIVER_USER_NAME, receiverUser.userName);
             conversion.put(KEY_RECEIVER_IMAGE, receiverUser.image);
-            conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString());
+            conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
             conversion.put(KEY_TIMESTAMP, new Date());
             conversion.put(KEY_COUNT, count);
             addConversion(conversion);
@@ -300,7 +334,7 @@ public class ChatActivity extends BaseActivity {
             count = Objects.requireNonNull(v.get(KEY_COUNT)).hashCode() + 1;
 
             documentReference.update(
-                    KEY_LAST_MESSAGE, message,
+                    KEY_LAST_MESSAGE, message.strip(),
                     KEY_TIMESTAMP, new Date(),
                     KEY_COUNT, count
             );
@@ -309,7 +343,7 @@ public class ChatActivity extends BaseActivity {
             HashMap<String, Object> messageData = new HashMap<>();
             messageData.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
             messageData.put(KEY_RECEIVER_ID, receiverUser.id);
-            messageData.put(KEY_MESSAGE, message);
+            messageData.put(KEY_MESSAGE, message.strip());
             messageData.put(KEY_TIMESTAMP, new Date());
             messageData.put(KEY_COUNT, count);
 
@@ -360,6 +394,31 @@ public class ChatActivity extends BaseActivity {
                 .whereEqualTo(KEY_RECEIVER_ID, receiverId)
                 .get()
                 .addOnCompleteListener(conversationOnCompleteListener);
+
+    }
+
+    private void changeLayoutButton(boolean flag) {
+
+        if (flag) {
+
+            activityChatBinding.layoutSend.setVisibility(View.VISIBLE);
+            activityChatBinding.layoutFiles.setVisibility(View.INVISIBLE);
+
+        } else {
+
+            activityChatBinding.layoutSend.setVisibility(View.INVISIBLE);
+            activityChatBinding.layoutFiles.setVisibility(View.VISIBLE);
+
+        }
+
+    }
+
+    private void showDialog() {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ImageProfileDialog imageProfileDialog = new ImageProfileDialog(getReceiverUserImage(receiverUser.image));
+
+        imageProfileDialog.show(fragmentManager, "dialog");
 
     }
 

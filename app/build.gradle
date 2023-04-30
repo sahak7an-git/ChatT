@@ -29,8 +29,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
@@ -53,6 +53,7 @@ dependencies {
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
     // Firebase
+
     implementation 'com.google.firebase:firebase-firestore:24.5.0'
     implementation 'com.google.firebase:firebase-messaging:23.1.2'
     implementation 'com.google.firebase:firebase-auth:21.3.0'
@@ -60,5 +61,9 @@ dependencies {
     // MultiDex
 
     implementation 'androidx.multidex:multidex:2.0.1'
+
+    // Swipe
+
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
 }

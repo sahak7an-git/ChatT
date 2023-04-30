@@ -5,9 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="2dp"
-    android:animateLayoutChanges="true"
-    android:paddingStart="5dp"
-    android:paddingEnd="5dp">
+    android:animateLayoutChanges="true">
 
     <TextView
         android:id="@+id/textMessage"

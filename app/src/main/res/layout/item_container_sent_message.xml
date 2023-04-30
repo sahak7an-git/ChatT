@@ -6,8 +6,6 @@
     android:layout_height="wrap_content"
     android:animateLayoutChanges="true"
     android:layout_marginTop="8dp"
-    android:paddingStart="5dp"
-    android:paddingEnd="5dp"
     android:paddingTop="5dp"
     android:paddingBottom="1dp">
 

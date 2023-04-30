@@ -64,6 +64,7 @@ public class SignInActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
 
         activitySignInBinding.buttonSignIn.setOnClickListener(v -> {
+
             if (isValidSignInDetails()) {
 
                 if (firebaseUser != null) {
@@ -72,8 +73,18 @@ public class SignInActivity extends AppCompatActivity {
 
                 }
 
-                isVerified();
+                if (isData(activitySignInBinding.inputEmail.getText().toString())) {
+
+                    isVerified();
+
+                } else {
+
+                    signIn();
+
+                }
+
             }
+
         });
 
         activitySignInBinding.inputEmail.addTextChangedListener(new TextWatcher() {
@@ -179,9 +190,19 @@ public class SignInActivity extends AppCompatActivity {
             showToast("Enter Email");
             return false;
 
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(activitySignInBinding.inputEmail.getText().toString()).matches()) {
+
+            showToast("Enter Email");
+            return false;
+
         } else if (activitySignInBinding.inputPassword.getText().toString().trim().isEmpty()) {
 
             showToast("Enter Password");
+            return false;
+
+        } else if (activitySignInBinding.inputPassword.getText().toString().trim().getBytes().length < 6) {
+
+            showToast("Password is short");
             return false;
 
         } else {
@@ -189,6 +210,7 @@ public class SignInActivity extends AppCompatActivity {
             return true;
 
         }
+
     }
 
     private void signIn() {
@@ -309,6 +331,20 @@ public class SignInActivity extends AppCompatActivity {
         } else {
 
             signIn();
+
+        }
+
+    }
+
+    private boolean isData(String email) {
+
+        if (email.equals(preferenceManager.getString(KEY_EMAIL))) {
+
+            return true;
+
+        } else {
+
+            return false;
 
         }
 

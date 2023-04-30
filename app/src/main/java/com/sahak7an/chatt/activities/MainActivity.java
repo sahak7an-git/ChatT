@@ -48,6 +48,7 @@ import com.sahak7an.chatt.utilities.PreferenceManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ConversationListener {
 
@@ -94,7 +95,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
                     }
 
-                    chatMessage.message = documentChange.getDocument().getString(KEY_LAST_MESSAGE);
+                    chatMessage.message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_LAST_MESSAGE)).strip();
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
                     conversations.add(chatMessage);
 
@@ -108,7 +109,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
                         if (conversations.get(item).senderId.equals(senderId) &&
                             conversations.get(item).receiverId.equals(receiverId)) {
 
-                            conversations.get(item).message = documentChange.getDocument().getString(KEY_LAST_MESSAGE);
+                            conversations.get(item).message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_LAST_MESSAGE)).strip();
                             conversations.get(item).date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
                             break;
 
