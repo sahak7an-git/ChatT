@@ -41,7 +41,7 @@ public class ImageProfileDialog extends DialogFragment implements View.OnClickLi
         RoundedImageView roundedImageView = view.findViewById(R.id.imageProfile);
 
         Objects.requireNonNull(getDialog()).getWindow().setBackgroundDrawable(new ColorDrawable(Color.argb(0, 0, 0, 0)));
-        getDialog().getWindow().setDimAmount(8);
+        getDialog().getWindow().setDimAmount(5);
 
         view.startAnimation(AnimationUtils.loadAnimation(
                 getContext(), R.anim.fade_in

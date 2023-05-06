@@ -392,6 +392,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                userData.put(KEY_EMAIL, activitySignUpBinding.inputEmail.getText().toString());
                                                userData.put(KEY_IMAGE, encodedImage);
 
+
                                                firebaseFirestore.collection(KEY_COLLECTION_USERS)
                                                        .add(userData)
                                                        .addOnSuccessListener(documentReference -> {
@@ -409,7 +410,12 @@ public class SignUpActivity extends AppCompatActivity {
                                                            loading(false);
 
                                                        })
-                                                       .addOnFailureListener(e -> showToast(e.getMessage()));
+                                                       .addOnFailureListener(e -> {
+
+                                                           showToast(e.getMessage());
+                                                           Objects.requireNonNull(firebaseAuth.getCurrentUser()).delete();
+
+                                                       });
 
 
                                            } else if (Objects.equals(
@@ -512,12 +518,12 @@ public class SignUpActivity extends AppCompatActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        int previewWidth = 300;
-        int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
+        int previewWidth = 1920;
+        int previewHeight = 1080;
 
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        previewBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        previewBitmap.compress(Bitmap.CompressFormat.WEBP, 90, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);

@@ -142,13 +142,19 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
         setContentView(activityMainBinding.getRoot());
 
+        setListeners();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
         init();
 
         loadUserDetails();
         getToken();
-        setListeners();
-
         listenConversations();
+
     }
 
     private void init() {
@@ -303,17 +309,21 @@ public class MainActivity extends BaseActivity implements ConversationListener {
     }
 
     private void changeStatusBarColor() {
+
         Window window = this.getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.setStatusBarColor(this.getResources().getColor(R.color.primary, getTheme()));
+
     }
 
     @Override
     public void onConversationClicked(User user) {
+
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(KEY_USER, user);
         startActivity(intent);
+
     }
 
 }

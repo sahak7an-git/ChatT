@@ -5,6 +5,7 @@
     <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="sign_in">Sign In</string>
+    <string name="restore_password">Restore Password</string>
     <string name="match_password">Password\'s does not match</string>
     <string name="used_username">This username already used</string>
     <string name="used_email">This email already used</string>
@@ -33,4 +34,5 @@
     <string name="search_users">Search Users</string>
     <string name="select_user">Select User</string>
     <string name="message">Message...</string>
+    <string name="error">Error</string>
 </resources>

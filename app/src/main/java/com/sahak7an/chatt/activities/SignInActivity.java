@@ -18,8 +18,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -32,6 +36,7 @@ import com.sahak7an.chatt.databinding.ActivitySignInBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class SignInActivity extends AppCompatActivity {
@@ -60,6 +65,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void setListeners() {
+
         activitySignInBinding.textCreateNewAccount.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
 
@@ -73,7 +79,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 }
 
-                if (isData(activitySignInBinding.inputEmail.getText().toString())) {
+                if (isInsertedEmailSaved(activitySignInBinding.inputEmail.getText().toString())) {
 
                     isVerified();
 
@@ -305,8 +311,6 @@ public class SignInActivity extends AppCompatActivity {
 
             try {
 
-                firebaseUser.reload();
-
                 TimeUnit.MILLISECONDS.sleep(100);
 
                 firebaseUser.reload();
@@ -336,17 +340,9 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
-    private boolean isData(String email) {
+    private boolean isInsertedEmailSaved(String email) {
 
-        if (email.equals(preferenceManager.getString(KEY_EMAIL))) {
-
-            return true;
-
-        } else {
-
-            return false;
-
-        }
+        return email.equals(preferenceManager.getString(KEY_EMAIL));
 
     }
 
@@ -426,6 +422,61 @@ public class SignInActivity extends AppCompatActivity {
             activitySignInBinding.textPassword.setText(R.string.wrong_password);
 
         }
+
+    }
+
+    private void biometricSuccess() {
+
+        BiometricManager biometricManager = BiometricManager.from(this);
+
+        switch (biometricManager.canAuthenticate()) {
+
+            case BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED:
+            case BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED:
+            case BiometricManager.BIOMETRIC_STATUS_UNKNOWN:
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                showToast("Error");
+                break;
+
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                break;
+        }
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+        BiometricPrompt biometricPrompt = new BiometricPrompt(SignInActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+
+                activitySignInBinding.textRestorePassword.setText(R.string.error);
+            }
+
+        });
+
+        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("        ChatT")
+                .setDescription("Use Fingerprint for login")
+                .setDeviceCredentialAllowed(true)
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
 
     }
 

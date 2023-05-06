@@ -20,6 +20,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -58,7 +59,6 @@ import java.util.Objects;
 public class ChatActivity extends BaseActivity {
     private int count = 0;
     private User receiverUser;
-    private boolean flag = true;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
     private List<ChatMessage> chatMessages;
@@ -142,16 +142,28 @@ public class ChatActivity extends BaseActivity {
         setContentView(activityChatBinding.getRoot());
 
         setListeners();
-        loadReceiverDetails();
 
-        init();
-        listenMessage();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         listenAvailabilityOfReceiver();
+
+        listenMessage();
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        init();
+
+        loadReceiverDetails();
+
     }
 
     private void loadReceiverDetails() {
@@ -236,36 +248,6 @@ public class ChatActivity extends BaseActivity {
         activityChatBinding.chatRecyclerView.setAdapter(chatAdapter);
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        activityChatBinding.inputMessage.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                changeLayoutButton(charSequence.length() > 0);
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-
-        activityChatBinding.receiverImage.setOnClickListener(v -> {
-
-            if (flag) {
-
-                showDialog();
-
-            }
-
-        });
-
     }
 
     private void sendMessage() {
@@ -311,6 +293,36 @@ public class ChatActivity extends BaseActivity {
             if (!activityChatBinding.inputMessage.getText().toString().trim().isEmpty()) {
                 sendMessage();
             }
+
+        });
+
+        activityChatBinding.inputMessage.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                changeLayoutButton(charSequence.length() > 0);
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        activityChatBinding.receiverImage.setOnClickListener(v -> showDialog());
+
+        activityChatBinding.imageInfo.setOnClickListener(v -> {
+
+            Intent intent = new Intent(getApplicationContext(), AboutUserActivity.class);
+            intent.putExtra(KEY_USER, receiverUser);
+            startActivity(intent);
 
         });
         

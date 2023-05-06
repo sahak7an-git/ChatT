@@ -1,5 +1,6 @@
 package com.sahak7an.chatt.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -21,6 +22,11 @@ public class SettingsDialog extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.dialog_user_image, null);
+        
+        
+        
         return inflater.inflate(R.layout.dialog_settings, container, false);
     }
 
