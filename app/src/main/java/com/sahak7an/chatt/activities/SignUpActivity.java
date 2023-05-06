@@ -518,8 +518,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        int previewWidth = 1920;
-        int previewHeight = 1080;
+        int previewWidth = 1440;
+        int previewHeight = 2560;
 
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

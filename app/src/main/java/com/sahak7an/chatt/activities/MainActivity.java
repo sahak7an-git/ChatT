@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -223,7 +224,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         byte[] bytes = Base64.decode(preferenceManager.getString(KEY_IMAGE), Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
-        activityMainBinding.imageProfile.setImageBitmap(bitmap);
+        activityMainBinding.imageProfile.setImageBitmap(getResizedBitmap(bitmap));
 
     }
 
@@ -323,6 +324,24 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(KEY_USER, user);
         startActivity(intent);
+
+    }
+    private Bitmap getResizedBitmap(Bitmap bitmap) {
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scaleWidth = ((float) 1440) / width;
+        float scaleHeight = ((float) 2560) / height;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, width, height, matrix, false);
+        bitmap.recycle();
+
+        return resizedBitmap;
 
     }
 

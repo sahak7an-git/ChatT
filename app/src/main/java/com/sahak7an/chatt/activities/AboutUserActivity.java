@@ -4,9 +4,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
-
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -16,9 +14,14 @@ import android.util.DisplayMetrics;
 import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.fragment.app.FragmentManager;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ActivityAboutUserBinding;
+import com.sahak7an.chatt.dialogs.WarningDialog;
 import com.sahak7an.chatt.models.User;
 
 import java.util.Objects;
@@ -75,7 +78,13 @@ public class AboutUserActivity extends AppCompatActivity {
         activityAboutUserBinding.userImage.setImageBitmap(getResizedBitmap(
                 getReceiverUserImage(receiverUser.image),
                 displaySize()[0],
-                displaySize()[1]/2));
+                (int)   (displaySize()[1] / 1.8)));
+
+
+        activityAboutUserBinding.userImage.setImageBitmap(getResizedBitmap(
+                getReceiverUserImage(receiverUser.image),
+                displaySize()[0],
+                (int) (displaySize()[1] / 1.8)));
 
     }
 
@@ -167,6 +176,5 @@ public class AboutUserActivity extends AppCompatActivity {
         window.setStatusBarColor(this.getResources().getColor(R.color.primary, getTheme()));
 
     }
-
 
 }

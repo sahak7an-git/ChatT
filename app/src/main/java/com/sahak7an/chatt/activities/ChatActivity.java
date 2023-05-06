@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -143,6 +144,12 @@ public class ChatActivity extends BaseActivity {
 
         setListeners();
 
+        init();
+
+        loadReceiverDetails();
+
+        listenMessage();
+
     }
 
     @Override
@@ -151,26 +158,15 @@ public class ChatActivity extends BaseActivity {
 
         listenAvailabilityOfReceiver();
 
-        listenMessage();
-
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        init();
-
-        loadReceiverDetails();
-
     }
 
     private void loadReceiverDetails() {
 
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
         activityChatBinding.textUserName.setText(receiverUser.userName);
-        activityChatBinding.receiverImage.setImageBitmap(getReceiverUserImage(receiverUser.image));
+        activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(
+                getReceiverUserImage(receiverUser.image)
+        ));
 
     }
 
@@ -433,5 +429,24 @@ public class ChatActivity extends BaseActivity {
         imageProfileDialog.show(fragmentManager, "dialog");
 
     }
+    private Bitmap getResizedBitmap(Bitmap bitmap) {
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scaleWidth = ((float) 1440) / width;
+        float scaleHeight = ((float) 2560) / height;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, width, height, matrix, false);
+        bitmap.recycle();
+
+        return resizedBitmap;
+
+    }
+
 
 }

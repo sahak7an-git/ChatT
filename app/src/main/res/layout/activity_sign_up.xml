@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:overScrollMode="never"
     android:scrollbars="none"
+    android:screenOrientation="portrait"
     android:layout_gravity="center"
     android:background="@color/white"
     tools:context=".activities.SignInActivity">

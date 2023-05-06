@@ -2,6 +2,7 @@ package com.sahak7an.chatt.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -40,7 +41,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
 
             itemContainerUserBinding.textUserName.setText(user.userName);
             itemContainerUserBinding.textEmail.setText(user.email);
-            itemContainerUserBinding.imageProfile.setImageBitmap(getUserImage(user.image));
+
+            itemContainerUserBinding.imageProfile.setImageBitmap(
+                    getResizedBitmap(getUserImage(user.image)
+                    ));
+
             itemContainerUserBinding.getRoot().setOnClickListener(v -> userListener.onUserClicked(user));
 
         }
@@ -78,6 +83,25 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
 
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+    }
+
+    private Bitmap getResizedBitmap(Bitmap bitmap) {
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scaleWidth = ((float) 1440) / width;
+        float scaleHeight = ((float) 2560) / height;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, width, height, matrix, false);
+        bitmap.recycle();
+
+        return resizedBitmap;
 
     }
 }
