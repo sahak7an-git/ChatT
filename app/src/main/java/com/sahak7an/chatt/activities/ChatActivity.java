@@ -1,5 +1,7 @@
 package com.sahak7an.chatt.activities;
 
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_HEIGHT;
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_WIDTH;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CHAT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATIONS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
@@ -434,8 +436,8 @@ public class ChatActivity extends BaseActivity {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
-        float scaleWidth = ((float) 1080) / width;
-        float scaleHeight = ((float) 1920) / height;
+        float scaleWidth = ((float) IMAGE_HEIGHT) / width;
+        float scaleHeight = ((float) IMAGE_WIDTH) / height;
 
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);

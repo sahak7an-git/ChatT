@@ -1,5 +1,8 @@
 package com.sahak7an.chatt.adapters;
 
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_HEIGHT;
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_WIDTH;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -91,8 +94,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
-        float scaleWidth = ((float) 1080) / width;
-        float scaleHeight = ((float) 1920) / height;
+        float scaleWidth = ((float) IMAGE_HEIGHT) / width;
+        float scaleHeight = ((float) IMAGE_WIDTH) / height;
 
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);

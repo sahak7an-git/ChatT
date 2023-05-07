@@ -1,5 +1,7 @@
 package com.sahak7an.chatt.activities;
 
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_HEIGHT;
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_WIDTH;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
@@ -518,12 +520,12 @@ public class SignUpActivity extends AppCompatActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        int previewWidth = 1920;
-        int previewHeight = 1080;
+        int previewWidth = IMAGE_WIDTH;
+        int previewHeight = IMAGE_HEIGHT;
 
         Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        previewBitmap.compress(Bitmap.CompressFormat.WEBP, 90, byteArrayOutputStream);
+        previewBitmap.compress(Bitmap.CompressFormat.WEBP, 95, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);

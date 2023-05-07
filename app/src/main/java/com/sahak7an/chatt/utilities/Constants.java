@@ -29,4 +29,6 @@ public class Constants {
 
     public static final String PUBLIC_KEY = "publicKey";
     public static final String PRIVATE_KEY = "privateKey";
+    public static final int IMAGE_WIDTH = 1920;
+    public static final int IMAGE_HEIGHT = 1080;
 }

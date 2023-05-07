@@ -1,5 +1,7 @@
 package com.sahak7an.chatt.activities;
 
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_HEIGHT;
+import static com.sahak7an.chatt.utilities.Constants.IMAGE_WIDTH;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
@@ -11,6 +13,7 @@ import android.graphics.Matrix;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -79,13 +82,16 @@ public class AboutUserActivity extends AppCompatActivity {
         activityAboutUserBinding.userImage.setImageBitmap(getResizedBitmap(
                 getReceiverUserImage(receiverUser.image),
                 displaySize()[0],
-                (int) (displaySize()[1] / 1.8)));
+                displaySize()[1] / 2
+        ));
 
     }
 
     private Bitmap getReceiverUserImage(String encodedImage) {
 
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
     }
@@ -137,20 +143,7 @@ public class AboutUserActivity extends AppCompatActivity {
 
     private Bitmap getResizedBitmap(Bitmap bitmap, int newWidth, int newHeight) {
 
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-
-        Bitmap resizedBitmap = Bitmap.createBitmap(
-                bitmap, 0, 0, width, height, matrix, false);
-        bitmap.recycle();
-
-        return resizedBitmap;
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight + 100, false);
 
     }
 
@@ -160,6 +153,7 @@ public class AboutUserActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
         return new int[]{displayMetrics.widthPixels, displayMetrics.heightPixels};
+
     }
 
     private void changeStatusBarColor() {
