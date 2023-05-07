@@ -244,6 +244,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
     private void updateToken(String token) {
 
+        preferenceManager.putString(KEY_FCM_TOKEN, token);
+
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
         DocumentReference documentReference =
                 firebaseFirestore.collection(KEY_COLLECTION_USERS).document(
@@ -323,6 +325,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
     @Override
     public void onConversationClicked(User user) {
 
+        preferenceManager.putString(KEY_RECEIVER_IMAGE, user.image);
+        preferenceManager.putString(KEY_RECEIVER_ID, user.id);
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(KEY_USER, user);
         startActivity(intent);

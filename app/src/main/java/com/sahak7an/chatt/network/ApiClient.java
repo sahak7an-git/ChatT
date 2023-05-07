@@ -1,5 +1,7 @@
 package com.sahak7an.chatt.network;
 
+import static com.sahak7an.chatt.utilities.Constants.URL;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
@@ -12,7 +14,7 @@ public class ApiClient {
         if (retrofit == null) {
 
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://fcm.googleapis.com/fcm/")
+                    .baseUrl(URL)
                     .addConverterFactory(ScalarsConverterFactory.create())
                     .build();
 

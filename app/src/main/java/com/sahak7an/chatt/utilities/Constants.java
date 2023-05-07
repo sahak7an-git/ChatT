@@ -4,54 +4,58 @@ import java.util.HashMap;
 
 public class Constants {
 
-    public static final String KEY_COLLECTION_USERS = "users";
-    public static final String KEY_USER_NAME = "username";
-    public static final String KEY_COUNT = "count";
-    public static final String KEY_EMAIL = "email";
-    public static final String KEY_PASSWORD = "password";
-    public static final String KEY_VERIFIED = "verify";
-    public static final String KEY_PREFERENCE_NAME = "chatAppPreference";
-    public static final String KEY_IMAGE = "image";
-    public static final String KEY_USER_ID = "userId";
-    public static final String KEY_IS_SIGNED_IN = "isSignedIn";
-    public static final String KEY_FCM_TOKEN = "fcmToken";
-    public static final String KEY_USER = "user";
-    public static final String KEY_IS_ONLINE = "online";
-    public static final String KEY_COLLECTION_CHAT = "chat";
-    public static final String KEY_SENDER_ID = "senderId";
-    public static final String KEY_RECEIVER_ID = "receiverId";
-    public static final String KEY_MESSAGE = "message";
-    public static final String KEY_TIMESTAMP = "timestamp";
-    public static final String KEY_COLLECTION_CONVERSATIONS = "conversations";
-    public static final String KEY_SENDER_USER_NAME = "senderUserName";
-    public static final String KEY_RECEIVER_USER_NAME = "receiverUserName";
-    public static final String KEY_SENDER_IMAGE = "senderImage";
-    public static final String KEY_RECEIVER_IMAGE = "receiverImage";
-    public static final String KEY_LAST_MESSAGE = "lastMessage";
-    public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
-    public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
-    public static final String REMOTE_MSG_DATA = "data";
-    public static final String REMOTE_MSG_REGISTRATION_IDS = "registration_ids";
-
-    public static final String PUBLIC_KEY = "publicKey";
-    public static final String PRIVATE_KEY = "privateKey";
     public static final int IMAGE_WIDTH = 1920;
     public static final int IMAGE_HEIGHT = 1080;
-
+    public static final String KEY_USER = "user";
+    public static final String KEY_COUNT = "count";
+    public static final String KEY_IMAGE = "image";
+    public static final String KEY_EMAIL = "email";
+    public static final String KEY_USER_ID = "userId";
+    public static final String KEY_MESSAGE = "message";
+    public static final String KEY_VERIFIED = "verify";
+    public static final String KEY_IS_ONLINE = "online";
+    public static final String REMOTE_MSG_DATA = "data";
+    public static final String PUBLIC_KEY = "publicKey";
+    public static final String KEY_PASSWORD = "password";
+    public static final String PRIVATE_KEY = "privateKey";
+    public static final String KEY_FCM_TOKEN = "fcmToken";
+    public static final String KEY_USER_NAME = "username";
+    public static final String KEY_SENDER_ID = "senderId";
+    public static final String KEY_TIMESTAMP = "timestamp";
+    public static final String KEY_COLLECTION_CHAT = "chat";
+    public static final String KEY_COLLECTION_USERS = "users";
+    public static final String KEY_RECEIVER_ID = "receiverId";
+    public static final String KEY_IS_SIGNED_IN = "isSignedIn";
+    public static final String KEY_LAST_MESSAGE = "lastMessage";
+    public static final String KEY_SENDER_IMAGE = "senderImage";
     public static HashMap<String, String> remoteMsgHeaders = null;
+    public static final String KEY_RECEIVER_IMAGE = "receiverImage";
+    public static final String URL = "https://fcm.googleapis.com/fcm/";
+    public static final String KEY_SENDER_USER_NAME = "senderUserName";
+    public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
+    public static final String KEY_PREFERENCE_NAME = "chatAppPreference";
+    public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
+    public static final String KEY_RECEIVER_USER_NAME = "receiverUserName";
+    public static final String KEY_COLLECTION_CONVERSATIONS = "conversations";
+    public static final String REMOTE_MSG_REGISTRATION_IDS = "registration_ids";
+
     public static HashMap<String, String> getRemoteMsgHeaders() {
 
         if (remoteMsgHeaders == null) {
 
             remoteMsgHeaders = new HashMap<>();
             remoteMsgHeaders.put(
+
                     REMOTE_MSG_AUTHORIZATION,
-                    "key=AAAAGpLRof4:APA91bGzqXCdU-UeeSS3iKoEizG2hvF-bTwXQDK7jVQTa8fi5EnxXelsLnMJZhWV9XDH12Lk_9dMo3J1VD2qF7SprAFU69KgjkgJZoOBs2TmT5VWNZYrQrgkFzdt1e4haGoznxu7674y"
+                    "key=AAAAGpLRof4:APA91bG5ioOjVnog-i1jgRlUql_RMfVJKUrP74kGMEfv9rnNy8-3I05xFMs6WwqZxeSzaFXUnBLr4fMrt_IRJMk1ni3LPRa-O0o0NUKYRD2Oy5osEoz0Wb8wVMMDnwcTopanldWZ5L4K"
+
             );
 
             remoteMsgHeaders.put(
+
                     REMOTE_MSG_CONTENT_TYPE,
                     "application/json"
+
             );
 
         }

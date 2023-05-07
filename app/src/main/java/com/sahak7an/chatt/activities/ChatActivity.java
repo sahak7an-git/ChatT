@@ -6,6 +6,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CHAT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATIONS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COUNT;
+import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
@@ -21,6 +22,8 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_TIMESTAMP;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
+import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_DATA;
+import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.sahak7an.chatt.utilities.Constants.getRemoteMsgHeaders;
 
 import android.annotation.SuppressLint;
@@ -32,6 +35,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -41,7 +45,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentManager;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -181,9 +184,6 @@ public class ChatActivity extends BaseActivity {
 
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
         activityChatBinding.textUserName.setText(receiverUser.userName);
-        activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(
-                getReceiverUserImage(receiverUser.image)
-        ));
 
     }
 
@@ -191,11 +191,11 @@ public class ChatActivity extends BaseActivity {
 
         firebaseFirestore.collection(KEY_COLLECTION_CHAT)
                 .whereEqualTo(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID))
-                .whereEqualTo(KEY_RECEIVER_ID, receiverUser.id)
+                .whereEqualTo(KEY_RECEIVER_ID, preferenceManager.getString(KEY_RECEIVER_ID))
                 .addSnapshotListener(eventListener);
 
         firebaseFirestore.collection(KEY_COLLECTION_CHAT)
-                .whereEqualTo(KEY_SENDER_ID, receiverUser.id)
+                .whereEqualTo(KEY_SENDER_ID, preferenceManager.getString(KEY_RECEIVER_ID))
                 .whereEqualTo(KEY_RECEIVER_ID, preferenceManager.getString(KEY_USER_ID))
                 .addSnapshotListener(eventListener);
 
@@ -203,7 +203,7 @@ public class ChatActivity extends BaseActivity {
 
     private void listenAvailabilityOfReceiver() {
 
-        firebaseFirestore.collection(KEY_COLLECTION_USERS).document(receiverUser.id)
+        firebaseFirestore.collection(KEY_COLLECTION_USERS).document(preferenceManager.getString(KEY_RECEIVER_ID))
                 .addSnapshotListener(ChatActivity.this, ((value, error) -> {
 
                     if (error != null) {
@@ -242,6 +242,26 @@ public class ChatActivity extends BaseActivity {
 
                         receiverUser.token = value.getString(KEY_FCM_TOKEN);
 
+                        if (receiverUser.image == null) {
+
+                            receiverUser.image = value.getString(KEY_IMAGE);
+                            receiverUser.userName = value.getString(KEY_USER_NAME);
+                            receiverUser.email = value.getString(KEY_EMAIL);
+                            receiverUser.token = value.getString(KEY_FCM_TOKEN);
+                            receiverUser.id = value.getId();
+
+                            activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
+                                    receiverUser.image
+                            )));
+
+                        } else {
+
+                            activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
+                                    preferenceManager.getString(KEY_RECEIVER_IMAGE)
+                            )));
+
+                        }
+
                     }
 
                 }));
@@ -262,6 +282,8 @@ public class ChatActivity extends BaseActivity {
 
         activityChatBinding.chatRecyclerView.setAdapter(chatAdapter);
         firebaseFirestore = FirebaseFirestore.getInstance();
+
+        Log.d("HELLO", "HELLO");
 
     }
 
@@ -293,6 +315,33 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_TIMESTAMP, new Date());
             conversion.put(KEY_COUNT, count);
             addConversion(conversion);
+
+        }
+
+        if (!isReceiverOnline) {
+
+            try {
+
+                JSONArray tokens = new JSONArray();
+                tokens.put(receiverUser.token);
+
+                JSONObject data = new JSONObject();
+                data.put(KEY_USER_ID, preferenceManager.getString(KEY_USER_ID));
+                data.put(KEY_USER_NAME, preferenceManager.getString(KEY_USER_NAME));
+                data.put(KEY_FCM_TOKEN, preferenceManager.getString(KEY_FCM_TOKEN));
+                data.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
+
+                JSONObject body = new JSONObject();
+                body.put(REMOTE_MSG_DATA, data);
+                body.put(REMOTE_MSG_REGISTRATION_IDS, tokens);
+
+                sendNotification(body.toString());
+
+            } catch (Exception exception) {
+
+                showToast(exception.getMessage());
+
+            }
 
         }
 
@@ -469,7 +518,7 @@ public class ChatActivity extends BaseActivity {
 
     private void showToast(String message) {
 
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -478,7 +527,7 @@ public class ChatActivity extends BaseActivity {
         ApiClient.getClient().create(ApiService.class).sendMessage(
                 getRemoteMsgHeaders(),
                 messageBody
-        ).enqueue(new Callback<String>() {
+        ).enqueue(new Callback<>() {
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
 
@@ -491,20 +540,31 @@ public class ChatActivity extends BaseActivity {
                             JSONObject responseJson = new JSONObject(response.body());
                             JSONArray results = responseJson.getJSONArray("results");
 
+                            if (responseJson.getInt("failure") == 1) {
+
+                                JSONObject error = (JSONObject) results.get(0);
+                                showToast(error.getString("error"));
+
+                            }
+
                         }
 
-                    }catch (JSONException e) {
-                        throw new RuntimeException(e);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
                 } else {
+
                     showToast("Error: " + response.code());
+
                 }
 
             }
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+
+                showToast(t.getMessage());
 
             }
         });
