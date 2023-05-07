@@ -75,11 +75,6 @@ public class AboutUserActivity extends AppCompatActivity {
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
 
         activityAboutUserBinding.textUserName.setText(receiverUser.userName);
-        activityAboutUserBinding.userImage.setImageBitmap(getResizedBitmap(
-                getReceiverUserImage(receiverUser.image),
-                displaySize()[0],
-                (int)   (displaySize()[1] / 1.8)));
-
 
         activityAboutUserBinding.userImage.setImageBitmap(getResizedBitmap(
                 getReceiverUserImage(receiverUser.image),

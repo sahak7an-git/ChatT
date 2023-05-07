@@ -331,8 +331,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 
-        float scaleWidth = ((float) 1440) / width;
-        float scaleHeight = ((float) 2560) / height;
+        float scaleWidth = ((float) 1080) / width;
+        float scaleHeight = ((float) 1920) / height;
 
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);

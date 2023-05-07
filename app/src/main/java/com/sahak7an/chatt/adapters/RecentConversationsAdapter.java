@@ -2,6 +2,7 @@ package com.sahak7an.chatt.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -40,7 +41,9 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
 
         void setData(ChatMessage chatMessage) {
 
-            recentConversionBinding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
+            recentConversionBinding.imageProfile.setImageBitmap(getResizedBitmap(
+                    getConversionImage(chatMessage.conversionImage)));
+
             recentConversionBinding.textUserName.setText(chatMessage.conversionName);
             recentConversionBinding.textRecentMessage.setText(chatMessage.message);
             recentConversionBinding.getRoot().setOnClickListener(v -> {
@@ -61,6 +64,25 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
 
         byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+    }
+
+    private Bitmap getResizedBitmap(Bitmap bitmap) {
+
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scaleWidth = ((float) 1080) / width;
+        float scaleHeight = ((float) 1920) / height;
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        Bitmap resizedBitmap = Bitmap.createBitmap(
+                bitmap, 0, 0, width, height, matrix, false);
+        bitmap.recycle();
+
+        return resizedBitmap;
 
     }
 
