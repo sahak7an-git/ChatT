@@ -1,5 +1,7 @@
 package com.sahak7an.chatt.utilities;
 
+import java.util.HashMap;
+
 public class Constants {
 
     public static final String KEY_COLLECTION_USERS = "users";
@@ -26,9 +28,35 @@ public class Constants {
     public static final String KEY_SENDER_IMAGE = "senderImage";
     public static final String KEY_RECEIVER_IMAGE = "receiverImage";
     public static final String KEY_LAST_MESSAGE = "lastMessage";
+    public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
+    public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
+    public static final String REMOTE_MSG_DATA = "data";
+    public static final String REMOTE_MSG_REGISTRATION_IDS = "registration_ids";
 
     public static final String PUBLIC_KEY = "publicKey";
     public static final String PRIVATE_KEY = "privateKey";
     public static final int IMAGE_WIDTH = 1920;
     public static final int IMAGE_HEIGHT = 1080;
+
+    public static HashMap<String, String> remoteMsgHeaders = null;
+    public static HashMap<String, String> getRemoteMsgHeaders() {
+
+        if (remoteMsgHeaders == null) {
+
+            remoteMsgHeaders = new HashMap<>();
+            remoteMsgHeaders.put(
+                    REMOTE_MSG_AUTHORIZATION,
+                    "key=AAAAGpLRof4:APA91bGzqXCdU-UeeSS3iKoEizG2hvF-bTwXQDK7jVQTa8fi5EnxXelsLnMJZhWV9XDH12Lk_9dMo3J1VD2qF7SprAFU69KgjkgJZoOBs2TmT5VWNZYrQrgkFzdt1e4haGoznxu7674y"
+            );
+
+            remoteMsgHeaders.put(
+                    REMOTE_MSG_CONTENT_TYPE,
+                    "application/json"
+            );
+
+        }
+
+        return remoteMsgHeaders;
+
+    }
 }

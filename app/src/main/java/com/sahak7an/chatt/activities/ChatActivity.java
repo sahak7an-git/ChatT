@@ -6,6 +6,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CHAT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATIONS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COUNT;
+import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
@@ -20,6 +21,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_TIMESTAMP;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
+import static com.sahak7an.chatt.utilities.Constants.getRemoteMsgHeaders;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -33,10 +35,13 @@ import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -50,7 +55,13 @@ import com.sahak7an.chatt.databinding.ActivityChatBinding;
 import com.sahak7an.chatt.dialogs.ImageProfileDialog;
 import com.sahak7an.chatt.models.ChatMessage;
 import com.sahak7an.chatt.models.User;
+import com.sahak7an.chatt.network.ApiClient;
+import com.sahak7an.chatt.network.ApiService;
 import com.sahak7an.chatt.utilities.PreferenceManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,6 +69,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatActivity extends BaseActivity {
     private int count = 0;
@@ -224,6 +239,8 @@ public class ChatActivity extends BaseActivity {
                            activityChatBinding.textStatus.setText(getString(R.string.offline));
 
                        }
+
+                        receiverUser.token = value.getString(KEY_FCM_TOKEN);
 
                     }
 
@@ -450,5 +467,47 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+    private void showToast(String message) {
+
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+
+    }
+
+    private void sendNotification(String messageBody) {
+
+        ApiClient.getClient().create(ApiService.class).sendMessage(
+                getRemoteMsgHeaders(),
+                messageBody
+        ).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+
+                if (response.isSuccessful()) {
+
+                    try {
+
+                        if (response.body() != null) {
+
+                            JSONObject responseJson = new JSONObject(response.body());
+                            JSONArray results = responseJson.getJSONArray("results");
+
+                        }
+
+                    }catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                } else {
+                    showToast("Error: " + response.code());
+                }
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+
+            }
+        });
+    }
 
 }
