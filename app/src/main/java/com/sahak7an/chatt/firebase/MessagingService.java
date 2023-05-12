@@ -3,6 +3,7 @@ package com.sahak7an.chatt.firebase;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_MESSAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
+import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
@@ -52,9 +53,8 @@ public class MessagingService extends FirebaseMessagingService {
         user.userName = message.getData().get(KEY_USER_NAME);
         user.token = message.getData().get(KEY_FCM_TOKEN);
 
-        Log.d("HELLO", user.id);
-
         preferenceManager.putString(KEY_RECEIVER_ID, user.id);
+        preferenceManager.putString(KEY_RECEIVER_USER_NAME, user.userName);
 
         int notificationId = new Random().nextInt();
         String channelId = "chat_message";

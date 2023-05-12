@@ -31,6 +31,8 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
+import androidx.fragment.app.FragmentManager;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentChange;
@@ -238,7 +240,26 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
     private void getToken() {
 
-        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
+        FirebaseMessaging.getInstance().getToken()
+                .addOnSuccessListener(this::updateToken)
+                .addOnFailureListener(v -> {
+
+                    if (firebaseUser != null) {
+
+                        firebaseUser.delete();
+
+                    }
+
+                    preferenceManager.clear();
+
+                    showToast("Please Sign in again\n " +
+                            "Your account will be deleted\n" +
+                            "    Or connection Error    ");
+
+                    startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                    finish();
+
+                });
 
     }
 
@@ -271,6 +292,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
                     finish();
 
                 });
+
     }
 
     private void signOut() {
@@ -327,6 +349,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
         preferenceManager.putString(KEY_RECEIVER_IMAGE, user.image);
         preferenceManager.putString(KEY_RECEIVER_ID, user.id);
+        preferenceManager.putString(KEY_RECEIVER_USER_NAME, user.userName);
+
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(KEY_USER, user);
         startActivity(intent);

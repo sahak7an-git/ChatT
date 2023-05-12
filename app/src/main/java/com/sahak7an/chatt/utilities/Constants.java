@@ -23,6 +23,7 @@ public class Constants {
     public static final String KEY_SENDER_ID = "senderId";
     public static final String KEY_TIMESTAMP = "timestamp";
     public static final String KEY_COLLECTION_CHAT = "chat";
+    public static final String KEY_IP_ADDRESS = "ip_address";
     public static final String KEY_COLLECTION_USERS = "users";
     public static final String KEY_RECEIVER_ID = "receiverId";
     public static final String KEY_IS_SIGNED_IN = "isSignedIn";
@@ -30,6 +31,7 @@ public class Constants {
     public static final String KEY_SENDER_IMAGE = "senderImage";
     public static HashMap<String, String> remoteMsgHeaders = null;
     public static final String KEY_RECEIVER_IMAGE = "receiverImage";
+    public static final String KEY_NETWORK_ACCESS = "network_access";
     public static final String URL = "https://fcm.googleapis.com/fcm/";
     public static final String KEY_SENDER_USER_NAME = "senderUserName";
     public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
@@ -47,7 +49,7 @@ public class Constants {
             remoteMsgHeaders.put(
 
                     REMOTE_MSG_AUTHORIZATION,
-                    "key=AAAAGpLRof4:APA91bG5ioOjVnog-i1jgRlUql_RMfVJKUrP74kGMEfv9rnNy8-3I05xFMs6WwqZxeSzaFXUnBLr4fMrt_IRJMk1ni3LPRa-O0o0NUKYRD2Oy5osEoz0Wb8wVMMDnwcTopanldWZ5L4K"
+                    "key=AAAAGpLRof4:APA91bFYmgxodY5mEywshb_x8JtJqDYRXxK7YFXMguKER3NOcg3sICNA54etoDES4R_YAZHgGXeBpx62nrC0xNOdwWsIU4IaZnmYzdkS10Of-e8QKCoVHWUUwWfAj0aqC0XKdLN0Fz_D"
 
             );
 

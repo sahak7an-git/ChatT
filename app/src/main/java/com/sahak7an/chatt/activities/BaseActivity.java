@@ -2,6 +2,7 @@ package com.sahak7an.chatt.activities;
 
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_NETWORK_ACCESS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 
 import android.os.Bundle;
@@ -15,7 +16,7 @@ import com.sahak7an.chatt.utilities.PreferenceManager;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private DocumentReference documentReference;
+    private DocumentReference documentReferenceStatus;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -24,19 +25,27 @@ public class BaseActivity extends AppCompatActivity {
         PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
         FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
 
-        documentReference = firebaseFirestore.collection(KEY_COLLECTION_USERS)
+        documentReferenceStatus = firebaseFirestore.collection(KEY_COLLECTION_USERS)
                 .document(preferenceManager.getString(KEY_USER_ID));
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        documentReference.update(KEY_IS_ONLINE, false);
+        documentReferenceStatus.update(KEY_IS_ONLINE, false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        documentReferenceStatus.update(KEY_IS_ONLINE, false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        documentReference.update(KEY_IS_ONLINE, true);
+        documentReferenceStatus.update(KEY_IS_ONLINE, true);
     }
+
 }

@@ -9,6 +9,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COUNT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_MESSAGE;
@@ -66,9 +67,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -183,7 +189,7 @@ public class ChatActivity extends BaseActivity {
     private void loadReceiverDetails() {
 
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
-        activityChatBinding.textUserName.setText(receiverUser.userName);
+        activityChatBinding.textUserName.setText(preferenceManager.getString(KEY_RECEIVER_USER_NAME));
 
     }
 
@@ -314,6 +320,7 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
             conversion.put(KEY_TIMESTAMP, new Date());
             conversion.put(KEY_COUNT, count);
+            conversion.put(KEY_IP_ADDRESS, getDeviceIpAddress());
             addConversion(conversion);
 
         }
@@ -412,7 +419,8 @@ public class ChatActivity extends BaseActivity {
             documentReference.update(
                     KEY_LAST_MESSAGE, message.strip(),
                     KEY_TIMESTAMP, new Date(),
-                    KEY_COUNT, count
+                    KEY_COUNT, count,
+                    KEY_IP_ADDRESS, getDeviceIpAddress()
             );
 
 
@@ -497,6 +505,7 @@ public class ChatActivity extends BaseActivity {
         imageProfileDialog.show(fragmentManager, "dialog");
 
     }
+
     private Bitmap getResizedBitmap(Bitmap bitmap) {
 
         int width = bitmap.getWidth();
@@ -553,10 +562,6 @@ public class ChatActivity extends BaseActivity {
                         e.printStackTrace();
                     }
 
-                } else {
-
-                    showToast("Error: " + response.code());
-
                 }
 
             }
@@ -564,10 +569,40 @@ public class ChatActivity extends BaseActivity {
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
 
-                showToast(t.getMessage());
+            }
+
+        });
+    }
+
+    public static String getDeviceIpAddress() {
+
+        try {
+
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+
+                NetworkInterface networkInterface = en.nextElement();
+
+                for (Enumeration<InetAddress> enumIpAddress = networkInterface.getInetAddresses(); enumIpAddress.hasMoreElements();) {
+
+                    InetAddress inetAddress = enumIpAddress.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+
+                        return inetAddress.getHostAddress();
+
+                    }
+
+                }
 
             }
-        });
+
+        } catch (SocketException ex) {
+
+            ex.printStackTrace();
+
+        }
+
+        return null;
+
     }
 
 }

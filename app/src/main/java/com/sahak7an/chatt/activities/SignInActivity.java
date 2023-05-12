@@ -3,6 +3,7 @@ package com.sahak7an.chatt.activities;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_SIGNED_IN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
@@ -35,6 +36,11 @@ import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ActivitySignInBinding;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -252,6 +258,7 @@ public class SignInActivity extends AppCompatActivity {
                                                 preferenceManager.putString(KEY_USER_NAME, documentSnapshot.getString(KEY_USER_NAME));
                                                 preferenceManager.putString(KEY_IMAGE, documentSnapshot.getString(KEY_IMAGE));
                                                 preferenceManager.putString(KEY_EMAIL, documentSnapshot.getString(KEY_EMAIL));
+                                                preferenceManager.putString(KEY_IP_ADDRESS, getDeviceIpAddress());
 
                                                 preferenceManager.putBoolean(KEY_VERIFIED, true);
                                                 preferenceManager.putBoolean(KEY_IS_SIGNED_IN, true);
@@ -311,7 +318,7 @@ public class SignInActivity extends AppCompatActivity {
 
             try {
 
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(50);
 
                 firebaseUser.reload();
 
@@ -355,7 +362,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 firebaseUser.reload();
 
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(50);
 
                 firebaseUser.reload();
 
@@ -479,5 +486,37 @@ public class SignInActivity extends AppCompatActivity {
         biometricPrompt.authenticate(promptInfo);
 
     }
+
+    public static String getDeviceIpAddress() {
+
+        try {
+
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+
+                NetworkInterface networkInterface = en.nextElement();
+
+                for (Enumeration<InetAddress> enumIpAddress = networkInterface.getInetAddresses(); enumIpAddress.hasMoreElements();) {
+
+                    InetAddress inetAddress = enumIpAddress.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+
+                        return inetAddress.getHostAddress();
+
+                    }
+
+                }
+
+            }
+
+        } catch (SocketException ex) {
+
+            ex.printStackTrace();
+
+        }
+
+        return null;
+
+    }
+
 
 }

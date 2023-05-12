@@ -6,6 +6,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
@@ -142,6 +143,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
         preferenceManager.putString(KEY_RECEIVER_IMAGE, user.image);
         preferenceManager.putString(KEY_RECEIVER_ID, user.id);
+        preferenceManager.putString(KEY_RECEIVER_USER_NAME, user.userName);
+
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(KEY_USER, user);
         startActivity(intent);

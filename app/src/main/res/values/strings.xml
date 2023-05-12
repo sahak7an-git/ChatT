@@ -36,4 +36,5 @@
     <string name="message">Message...</string>
     <string name="error">Error</string>
     <string name="please_rotate_your_device">Please rotate your device</string>
+    <string name="check_connection">Please check your internet Connection!</string>
 </resources>
