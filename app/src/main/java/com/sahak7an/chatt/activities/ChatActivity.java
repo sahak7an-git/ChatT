@@ -67,16 +67,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -113,6 +116,7 @@ public class ChatActivity extends BaseActivity {
                     chatMessage.senderId = documentChange.getDocument().getString(KEY_SENDER_ID);
                     chatMessage.receiverId = documentChange.getDocument().getString(KEY_RECEIVER_ID);
                     chatMessage.message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_MESSAGE)).strip();
+                    chatMessage.dateTime = getReadableDateTime(documentChange.getDocument().getDate(KEY_TIMESTAMP));
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
                     chatMessage.count = Objects.requireNonNull(documentChange.getDocument().get(KEY_COUNT)).hashCode();
                     chatMessages.add(chatMessage);
@@ -189,7 +193,6 @@ public class ChatActivity extends BaseActivity {
     private void loadReceiverDetails() {
 
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
-        activityChatBinding.textUserName.setText(preferenceManager.getString(KEY_RECEIVER_USER_NAME));
 
     }
 
@@ -260,11 +263,15 @@ public class ChatActivity extends BaseActivity {
                                     receiverUser.image
                             )));
 
+                            activityChatBinding.textUserName.setText(receiverUser.userName);
+
                         } else {
 
                             activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
                                     preferenceManager.getString(KEY_RECEIVER_IMAGE)
                             )));
+
+                            activityChatBinding.textUserName.setText(preferenceManager.getString(KEY_RECEIVER_USER_NAME));
 
                         }
 
@@ -336,6 +343,7 @@ public class ChatActivity extends BaseActivity {
                 data.put(KEY_USER_ID, preferenceManager.getString(KEY_USER_ID));
                 data.put(KEY_USER_NAME, preferenceManager.getString(KEY_USER_NAME));
                 data.put(KEY_FCM_TOKEN, preferenceManager.getString(KEY_FCM_TOKEN));
+                data.put(KEY_RECEIVER_IMAGE, encodedImage(getReceiverUserImage(preferenceManager.getString(KEY_IMAGE))));
                 data.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
 
                 JSONObject body = new JSONObject();
@@ -602,6 +610,23 @@ public class ChatActivity extends BaseActivity {
         }
 
         return null;
+
+    }
+
+    private String getReadableDateTime(Date date) {
+
+        return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(date);
+
+    }
+
+    private String encodedImage(Bitmap bitmap) {
+
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        previewBitmap.compress(Bitmap.CompressFormat.WEBP, 95, byteArrayOutputStream);
+
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
 
     }
 

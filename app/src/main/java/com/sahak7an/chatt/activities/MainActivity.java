@@ -147,19 +147,13 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
         setContentView(activityMainBinding.getRoot());
 
-        setListeners();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
         init();
 
         loadUserDetails();
         getToken();
-        listenConversations();
 
+        setListeners();
+        listenConversations();
     }
 
     private void init() {

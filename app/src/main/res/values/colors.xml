@@ -10,5 +10,6 @@
     <color name="error">#B00020</color>
     <color name="green">#7CFC00</color>
     <color name="orange">#FFBF00</color>
+    <color name="black">#000000</color>
     <color name="received_message_background">#090D16</color>
 </resources>

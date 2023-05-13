@@ -67,6 +67,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         void setData(ChatMessage chatMessage) {
 
             sentMessageLastBinding.textMessage.setText(chatMessage.message);
+            sentMessageLastBinding.textDateTime.setText(chatMessage.dateTime);
 
         }
 
@@ -124,6 +125,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         void setData(ChatMessage chatMessage) {
 
             receiverMessageLastBinding.textMessage.setText(chatMessage.message);
+            receiverMessageLastBinding.textDateTime.setText(chatMessage.dateTime);
 
         }
 
@@ -286,7 +288,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                 if (!chatMessages.get(position - 1).senderId.equals(senderId)) {
 
-                    return VIEW_TYPE_SENT;
+                    if (chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                        return VIEW_TYPE_SENT;
+
+                    } else {
+
+                        return VIEW_TYPE_SENT_LAST;
+
+                    }
 
                 } else if (chatMessages.get(position + 1).senderId.equals(senderId)) {
 
@@ -326,7 +336,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                 if (chatMessages.get(position - 1).senderId.equals(senderId)) {
 
-                    return VIEW_TYPE_RECEIVER;
+                    if (!chatMessages.get(position + 1).senderId.equals(senderId)) {
+
+                        return VIEW_TYPE_RECEIVER;
+
+                    } else {
+
+                        return VIEW_TYPE_RECEIVER_LAST;
+
+                    }
 
                 } else if (!chatMessages.get(position + 1).senderId.equals(senderId)) {
 
