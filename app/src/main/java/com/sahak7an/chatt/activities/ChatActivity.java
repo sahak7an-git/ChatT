@@ -621,7 +621,7 @@ public class ChatActivity extends BaseActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 50, 50, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         previewBitmap.compress(Bitmap.CompressFormat.WEBP, 95, byteArrayOutputStream);
 

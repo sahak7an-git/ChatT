@@ -2,6 +2,7 @@ package com.sahak7an.chatt.activities;
 
 import static com.sahak7an.chatt.utilities.Constants.IMAGE_HEIGHT;
 import static com.sahak7an.chatt.utilities.Constants.IMAGE_WIDTH;
+import static com.sahak7an.chatt.utilities.Constants.IP_URL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATIONS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
@@ -24,14 +25,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
-
-import androidx.fragment.app.FragmentManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,6 +51,11 @@ import com.sahak7an.chatt.models.ChatMessage;
 import com.sahak7an.chatt.models.User;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -154,6 +160,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
         setListeners();
         listenConversations();
+
+        Log.d("HELLO", getPublicIpAddress());
     }
 
     private void init() {
@@ -366,6 +374,35 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         bitmap.recycle();
 
         return resizedBitmap;
+
+    }
+
+    private String getPublicIpAddress() {
+
+        BufferedReader bufferedReader = null;
+
+        try {
+
+            StrictMode.ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(threadPolicy);
+
+            URL myIp = new URL(IP_URL);
+            URLConnection connection = myIp.openConnection();
+
+            connection.setConnectTimeout(1000);
+            connection.setReadTimeout(1000);
+
+            bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            return Objects.requireNonNull(bufferedReader).readLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

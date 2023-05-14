@@ -10,6 +10,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -18,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Base64;
 
 import androidx.annotation.NonNull;
@@ -63,7 +65,24 @@ public class MessagingService extends FirebaseMessagingService {
         int notificationId = new Random().nextInt();
         String channelId = "chat_message";
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            CharSequence channelName = "Chat'T";
+            String channelDescription = "This notification channel is used for chat message notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+            channel.setDescription(channelDescription);
+            channel.setLockscreenVisibility(Notification.GROUP_ALERT_ALL);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+        }
+
         Intent intent = new Intent(this, ChatActivity.class);
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra(KEY_USER, user);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
@@ -74,24 +93,9 @@ public class MessagingService extends FirebaseMessagingService {
         builder.setContentTitle(user.userName);
         builder.setContentText(message.getData().get(KEY_MESSAGE));
         builder.setLargeIcon(getReceiverUserImage(message.getData().get(KEY_RECEIVER_IMAGE)));
-
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            CharSequence channelName = "Chat'T";
-            String channelDescription = "This notification channel is used for chat message notifications";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
-            channel.setDescription(channelDescription);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-
-        }
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
 
