@@ -6,7 +6,9 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATION
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_PORT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
@@ -25,13 +27,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
-
-import androidx.fragment.app.FragmentManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,9 +49,15 @@ import com.sahak7an.chatt.databinding.ActivityMainBinding;
 import com.sahak7an.chatt.listeners.ConversationListener;
 import com.sahak7an.chatt.models.ChatMessage;
 import com.sahak7an.chatt.models.User;
+import com.sahak7an.chatt.network.Server;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +65,9 @@ import java.util.Objects;
 public class MainActivity extends BaseActivity implements ConversationListener {
 
     private int count = 0;
+
+    private Server server;
+    private Thread serverThread;
     private FirebaseUser firebaseUser;
     private List<ChatMessage> conversations;
     private PreferenceManager preferenceManager;
@@ -350,6 +360,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         startActivity(intent);
 
     }
+
     private Bitmap getResizedBitmap(Bitmap bitmap) {
 
         int width = bitmap.getWidth();
@@ -366,6 +377,37 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         bitmap.recycle();
 
         return resizedBitmap;
+
+    }
+
+    public static String getDeviceIpAddress() {
+
+        try {
+
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+
+                NetworkInterface networkInterface = en.nextElement();
+
+                for (Enumeration<InetAddress> enumIpAddress = networkInterface.getInetAddresses(); enumIpAddress.hasMoreElements();) {
+
+                    InetAddress inetAddress = enumIpAddress.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+
+                        return inetAddress.getHostAddress();
+
+                    }
+
+                }
+
+            }
+
+        } catch (SocketException ex) {
+
+            ex.printStackTrace();
+
+        }
+
+        return null;
 
     }
 

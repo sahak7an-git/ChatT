@@ -4,9 +4,13 @@ import java.util.HashMap;
 
 public class Constants {
 
+    public static final int MIN_PORT = 1000;
+    public static final int MAX_PORT = 10000;
     public static final int IMAGE_WIDTH = 1920;
     public static final int IMAGE_HEIGHT = 1080;
     public static final String KEY_USER = "user";
+    public static final String KEY_PORT = "port";
+    public static final int PICK_IMAGE_REQUEST = 1;
     public static final String KEY_COUNT = "count";
     public static final String KEY_IMAGE = "image";
     public static final String KEY_EMAIL = "email";
@@ -15,6 +19,7 @@ public class Constants {
     public static final String KEY_VERIFIED = "verify";
     public static final String KEY_IS_ONLINE = "online";
     public static final String REMOTE_MSG_DATA = "data";
+
     public static final String PUBLIC_KEY = "publicKey";
     public static final String KEY_PASSWORD = "password";
     public static final String PRIVATE_KEY = "privateKey";
@@ -49,7 +54,7 @@ public class Constants {
             remoteMsgHeaders.put(
 
                     REMOTE_MSG_AUTHORIZATION,
-                    "key=AAAAGpLRof4:APA91bFYmgxodY5mEywshb_x8JtJqDYRXxK7YFXMguKER3NOcg3sICNA54etoDES4R_YAZHgGXeBpx62nrC0xNOdwWsIU4IaZnmYzdkS10Of-e8QKCoVHWUUwWfAj0aqC0XKdLN0Fz_D"
+                    "key=AAAAGpLRof4:APA91bFe5qR8EhNlOzamOr04zuEht3_ILQl9e4lwRDh4Dgi3jUScc5i_5zmx12yhmJG5_bP_zIxTfLHMeZ5xJfWC_ByQCKHtSH1Cr5ixBFg-Wo7GtfBFPpRX5_U-9hDp8C8ypXfOAL07"
 
             );
 
@@ -65,4 +70,5 @@ public class Constants {
         return remoteMsgHeaders;
 
     }
+
 }

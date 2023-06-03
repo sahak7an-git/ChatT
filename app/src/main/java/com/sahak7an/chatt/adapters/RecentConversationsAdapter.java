@@ -118,4 +118,5 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
     public int getItemCount() {
         return chatMessages.size();
     }
+
 }

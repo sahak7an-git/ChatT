@@ -113,5 +113,4 @@ public class ImageProfileDialog extends DialogFragment implements View.OnClickLi
 
     }
 
-
 }

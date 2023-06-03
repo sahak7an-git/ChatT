@@ -4,6 +4,8 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
+import static com.sahak7an.chatt.utilities.Constants.KEY_PORT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
@@ -83,6 +85,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
                             user.image = queryDocumentSnapshot.getString(KEY_IMAGE);
                             user.token = queryDocumentSnapshot.getString(KEY_FCM_TOKEN);
                             user.id = queryDocumentSnapshot.getId();
+                            user.ip = queryDocumentSnapshot.getString(KEY_IP_ADDRESS);
+                            user.port = queryDocumentSnapshot.getString(KEY_PORT);
                             userList.add(user);
 
                         }
@@ -151,6 +155,5 @@ public class UsersActivity extends BaseActivity implements UserListener {
         finish();
 
     }
-
 
 }

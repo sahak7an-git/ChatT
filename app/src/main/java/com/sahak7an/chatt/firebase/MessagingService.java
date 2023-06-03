@@ -112,4 +112,5 @@ public class MessagingService extends FirebaseMessagingService {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
     }
+
 }

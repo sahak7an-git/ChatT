@@ -55,4 +55,5 @@ public class SettingsDialog extends DialogFragment {
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         return super.onCreateAnimation(transit, enter, nextAnim);
     }
+
 }

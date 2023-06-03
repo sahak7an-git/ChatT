@@ -107,4 +107,5 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         return resizedBitmap;
 
     }
+
 }

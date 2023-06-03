@@ -13,6 +13,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_MESSAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_PORT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
@@ -23,15 +24,18 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_TIMESTAMP;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
+import static com.sahak7an.chatt.utilities.Constants.PICK_IMAGE_REQUEST;
 import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_DATA;
 import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.sahak7an.chatt.utilities.Constants.getRemoteMsgHeaders;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -40,9 +44,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentManager;
 
@@ -53,6 +59,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.adapters.ChatAdapter;
 import com.sahak7an.chatt.databinding.ActivityChatBinding;
@@ -61,22 +69,21 @@ import com.sahak7an.chatt.models.ChatMessage;
 import com.sahak7an.chatt.models.User;
 import com.sahak7an.chatt.network.ApiClient;
 import com.sahak7an.chatt.network.ApiService;
+import com.sahak7an.chatt.network.Client;
 import com.sahak7an.chatt.utilities.PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -87,12 +94,18 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ChatActivity extends BaseActivity {
+
+    private Uri imageUri;
     private int count = 0;
+    private Client client;
     private User receiverUser;
+    private Thread clientThread;
+    private String imageExtension;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
     private List<ChatMessage> chatMessages;
     private Boolean isReceiverOnline = false;
+    private StorageReference storageReference;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore firebaseFirestore;
     private ActivityChatBinding activityChatBinding;
@@ -167,6 +180,7 @@ public class ChatActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        storageReference = FirebaseStorage.getInstance().getReference();
         activityChatBinding = ActivityChatBinding.inflate(getLayoutInflater());
         changeStatusBarColor();
 
@@ -192,6 +206,7 @@ public class ChatActivity extends BaseActivity {
 
     private void loadReceiverDetails() {
 
+        listenAvailabilityOfReceiver();
         receiverUser = (User) getIntent().getSerializableExtra(KEY_USER);
 
     }
@@ -296,8 +311,6 @@ public class ChatActivity extends BaseActivity {
         activityChatBinding.chatRecyclerView.setAdapter(chatAdapter);
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        Log.d("HELLO", "HELLO");
-
     }
 
     private void sendMessage() {
@@ -327,7 +340,6 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
             conversion.put(KEY_TIMESTAMP, new Date());
             conversion.put(KEY_COUNT, count);
-            conversion.put(KEY_IP_ADDRESS, getDeviceIpAddress());
             addConversion(conversion);
 
         }
@@ -366,6 +378,8 @@ public class ChatActivity extends BaseActivity {
     private void setListeners() {
 
         activityChatBinding.imageBack.setOnClickListener(v -> onBackPressed());
+
+        activityChatBinding.layoutFiles.setOnClickListener(v -> fileChooser());
 
         activityChatBinding.layoutSend.setOnClickListener(v -> {
 
@@ -427,10 +441,8 @@ public class ChatActivity extends BaseActivity {
             documentReference.update(
                     KEY_LAST_MESSAGE, message.strip(),
                     KEY_TIMESTAMP, new Date(),
-                    KEY_COUNT, count,
-                    KEY_IP_ADDRESS, getDeviceIpAddress()
+                    KEY_COUNT, count
             );
-
 
             HashMap<String, Object> messageData = new HashMap<>();
             messageData.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
@@ -582,37 +594,6 @@ public class ChatActivity extends BaseActivity {
         });
     }
 
-    public static String getDeviceIpAddress() {
-
-        try {
-
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-
-                NetworkInterface networkInterface = en.nextElement();
-
-                for (Enumeration<InetAddress> enumIpAddress = networkInterface.getInetAddresses(); enumIpAddress.hasMoreElements();) {
-
-                    InetAddress inetAddress = enumIpAddress.nextElement();
-                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
-
-                        return inetAddress.getHostAddress();
-
-                    }
-
-                }
-
-            }
-
-        } catch (SocketException ex) {
-
-            ex.printStackTrace();
-
-        }
-
-        return null;
-
-    }
-
     private String getReadableDateTime(Date date) {
 
         return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(date);
@@ -621,13 +602,67 @@ public class ChatActivity extends BaseActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 100, 100, false);
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 50, 50, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         previewBitmap.compress(Bitmap.CompressFormat.WEBP, 95, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);
 
+    }
+
+    private void fileChooser() {
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+
+    }
+
+    private String getFileExtension(Uri uri) {
+
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+
+    }
+
+    private void uploadFile() {
+
+        if (imageExtension != null) {
+
+            StorageReference fileReference = storageReference.child(
+                    preferenceManager.getString(KEY_USER_ID) + "_" +
+                    receiverUser.id + "/" + System.currentTimeMillis() + "." +
+                            imageExtension
+            );
+
+            fileReference.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+
+                        updateConversion(String.valueOf(imageUri));
+
+                        showToast("OKAY");
+
+                    });
+
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null) {
+
+            imageUri = data.getData();
+            imageExtension = getFileExtension(imageUri);
+            uploadFile();
+
+        }
     }
 
 }
