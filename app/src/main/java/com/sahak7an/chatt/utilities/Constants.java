@@ -41,6 +41,7 @@ public class Constants {
     public static final String KEY_SENDER_USER_NAME = "senderUserName";
     public static final String REMOTE_MSG_CONTENT_TYPE = "Content-Type";
     public static final String KEY_PREFERENCE_NAME = "chatAppPreference";
+    public static final String IP_URL = "https://checkip.amazonaws.com/";
     public static final String REMOTE_MSG_AUTHORIZATION = "Authorization";
     public static final String KEY_RECEIVER_USER_NAME = "receiverUserName";
     public static final String KEY_COLLECTION_CONVERSATIONS = "conversations";
