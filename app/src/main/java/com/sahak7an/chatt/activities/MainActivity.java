@@ -6,6 +6,7 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_CONVERSATION
 import static com.sahak7an.chatt.utilities.Constants.KEY_COLLECTION_USERS;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IS_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
@@ -79,6 +80,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
             for (DocumentChange documentChange: value.getDocumentChanges()) {
 
                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
+                    conversations.clear();
 
                     String senderId = documentChange.getDocument().getString(KEY_SENDER_ID);
                     String receiverId = documentChange.getDocument().getString(KEY_RECEIVER_ID);
@@ -96,12 +98,13 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
                         chatMessage.conversionId = documentChange.getDocument().getString(KEY_SENDER_ID);
                         chatMessage.conversionName = documentChange.getDocument().getString(KEY_SENDER_USER_NAME);
-                        chatMessage.conversionImage = documentChange.getDocument().getString(KEY_SENDER_IMAGE   );
+                        chatMessage.conversionImage = documentChange.getDocument().getString(KEY_SENDER_IMAGE);
 
                     }
 
                     chatMessage.message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_LAST_MESSAGE)).strip();
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
+                    chatMessage.isImage = documentChange.getDocument().getBoolean(KEY_IS_IMAGE);
                     conversations.add(chatMessage);
 
                 } else if (documentChange.getType() == DocumentChange.Type.MODIFIED) {
@@ -153,6 +156,12 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         getToken();
 
         setListeners();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         listenConversations();
     }
 

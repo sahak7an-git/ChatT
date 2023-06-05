@@ -7,12 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sahak7an.chatt.R;
 import com.sahak7an.chatt.databinding.ItemContainerRecentConversionBinding;
 import com.sahak7an.chatt.listeners.ConversationListener;
 import com.sahak7an.chatt.models.ChatMessage;
@@ -44,11 +46,18 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
 
         void setData(ChatMessage chatMessage) {
 
+            Log.d("HELLO", String.valueOf(chatMessage.isImage));
+
+            if (chatMessage.isImage) {
+                recentConversionBinding.textRecentMessage.setText(R.string.file);
+            } else {
+                recentConversionBinding.textRecentMessage.setText(chatMessage.message);
+            }
+
             recentConversionBinding.imageProfile.setImageBitmap(getResizedBitmap(
                     getConversionImage(chatMessage.conversionImage)));
 
             recentConversionBinding.textUserName.setText(chatMessage.conversionName);
-            recentConversionBinding.textRecentMessage.setText(chatMessage.message);
             recentConversionBinding.getRoot().setOnClickListener(v -> {
 
                 User user = new User();

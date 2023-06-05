@@ -9,11 +9,10 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_COUNT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_EMAIL;
 import static com.sahak7an.chatt.utilities.Constants.KEY_FCM_TOKEN;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IMAGE;
-import static com.sahak7an.chatt.utilities.Constants.KEY_IP_ADDRESS;
+import static com.sahak7an.chatt.utilities.Constants.KEY_IS_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_IS_ONLINE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_LAST_MESSAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_MESSAGE;
-import static com.sahak7an.chatt.utilities.Constants.KEY_PORT;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_IMAGE;
 import static com.sahak7an.chatt.utilities.Constants.KEY_RECEIVER_USER_NAME;
@@ -24,7 +23,6 @@ import static com.sahak7an.chatt.utilities.Constants.KEY_TIMESTAMP;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_ID;
 import static com.sahak7an.chatt.utilities.Constants.KEY_USER_NAME;
-import static com.sahak7an.chatt.utilities.Constants.PICK_IMAGE_REQUEST;
 import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_DATA;
 import static com.sahak7an.chatt.utilities.Constants.REMOTE_MSG_REGISTRATION_IDS;
 import static com.sahak7an.chatt.utilities.Constants.getRemoteMsgHeaders;
@@ -37,18 +35,19 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.FragmentManager;
 
@@ -76,10 +75,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -98,8 +96,10 @@ public class ChatActivity extends BaseActivity {
     private Uri imageUri;
     private int count = 0;
     private Client client;
+    private Bitmap bitmap;
     private User receiverUser;
     private Thread clientThread;
+    private Boolean flag = false;
     private String imageExtension;
     private ChatAdapter chatAdapter;
     private String conversionId = null;
@@ -109,6 +109,34 @@ public class ChatActivity extends BaseActivity {
     private PreferenceManager preferenceManager;
     private FirebaseFirestore firebaseFirestore;
     private ActivityChatBinding activityChatBinding;
+
+    private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+
+                    if (result.getData() != null) {
+
+                        Uri uri = result.getData().getData();
+
+                        try {
+
+                            InputStream inputStream = getContentResolver().openInputStream(uri);
+                            bitmap = BitmapFactory.decodeStream(inputStream);
+
+                            imageUri = result.getData().getData();
+                            imageExtension = getFileExtension(imageUri);
+                            uploadFile();
+
+                        } catch (FileNotFoundException e) {
+
+                            e.printStackTrace();
+
+                        }
+                    }
+                }
+            }
+    );
 
     @SuppressLint("NotifyDataSetChanged")
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
@@ -130,6 +158,7 @@ public class ChatActivity extends BaseActivity {
                     chatMessage.receiverId = documentChange.getDocument().getString(KEY_RECEIVER_ID);
                     chatMessage.message = Objects.requireNonNull(documentChange.getDocument().getString(KEY_MESSAGE)).strip();
                     chatMessage.dateTime = getReadableDateTime(documentChange.getDocument().getDate(KEY_TIMESTAMP));
+                    chatMessage.isImage = documentChange.getDocument().getBoolean(KEY_IS_IMAGE);
                     chatMessage.date = documentChange.getDocument().getDate(KEY_TIMESTAMP);
                     chatMessage.count = Objects.requireNonNull(documentChange.getDocument().get(KEY_COUNT)).hashCode();
                     chatMessages.add(chatMessage);
@@ -225,74 +254,86 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void listenAvailabilityOfReceiver() {
 
-        firebaseFirestore.collection(KEY_COLLECTION_USERS).document(preferenceManager.getString(KEY_RECEIVER_ID))
-                .addSnapshotListener(ChatActivity.this, ((value, error) -> {
+        if (flag) {
 
-                    if (error != null) {
+            activityChatBinding.textStatus.setText("Sending Image");
+            activityChatBinding.status.setBackground(AppCompatResources
+                    .getDrawable(getApplicationContext(),
+                            R.drawable.background_sending_status));
 
-                        return;
+        } else {
 
-                    }
+            firebaseFirestore.collection(KEY_COLLECTION_USERS).document(preferenceManager.getString(KEY_RECEIVER_ID))
+                    .addSnapshotListener(ChatActivity.this, ((value, error) -> {
 
-                    if (value != null) {
+                        if (error != null) {
 
-                       if (value.getBoolean(KEY_IS_ONLINE) != null) {
-
-                           isReceiverOnline = Objects.requireNonNull(
-                                   value.getBoolean(KEY_IS_ONLINE)
-                           );
-
-                       }
-
-                       if (isReceiverOnline) {
-
-                           activityChatBinding.status.setBackground(AppCompatResources
-                                   .getDrawable(getApplicationContext(),
-                                           R.drawable.background_online_status));
-
-                           activityChatBinding.textStatus.setText(getString(R.string.online));
-
-                       } else {
-
-                           activityChatBinding.status.setBackground(AppCompatResources
-                                   .getDrawable(getApplicationContext(),
-                                           R.drawable.background_offline_status));
-
-                           activityChatBinding.textStatus.setText(getString(R.string.offline));
-
-                       }
-
-                        receiverUser.token = value.getString(KEY_FCM_TOKEN);
-
-                        if (receiverUser.image == null) {
-
-                            receiverUser.image = value.getString(KEY_IMAGE);
-                            receiverUser.userName = value.getString(KEY_USER_NAME);
-                            receiverUser.email = value.getString(KEY_EMAIL);
-                            receiverUser.token = value.getString(KEY_FCM_TOKEN);
-                            receiverUser.id = value.getId();
-
-                            activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
-                                    receiverUser.image
-                            )));
-
-                            activityChatBinding.textUserName.setText(receiverUser.userName);
-
-                        } else {
-
-                            activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
-                                    preferenceManager.getString(KEY_RECEIVER_IMAGE)
-                            )));
-
-                            activityChatBinding.textUserName.setText(preferenceManager.getString(KEY_RECEIVER_USER_NAME));
+                            return;
 
                         }
 
-                    }
+                        if (value != null) {
 
-                }));
+                            if (value.getBoolean(KEY_IS_ONLINE) != null) {
+
+                                isReceiverOnline = Objects.requireNonNull(
+                                        value.getBoolean(KEY_IS_ONLINE)
+                                );
+
+                            }
+
+                            if (isReceiverOnline) {
+
+                                activityChatBinding.status.setBackground(AppCompatResources
+                                        .getDrawable(getApplicationContext(),
+                                                R.drawable.background_online_status));
+
+                                activityChatBinding.textStatus.setText(getString(R.string.online));
+
+                            } else {
+
+                                activityChatBinding.status.setBackground(AppCompatResources
+                                        .getDrawable(getApplicationContext(),
+                                                R.drawable.background_offline_status));
+
+                                activityChatBinding.textStatus.setText(getString(R.string.offline));
+
+                            }
+
+                            receiverUser.token = value.getString(KEY_FCM_TOKEN);
+
+                            if (receiverUser.image == null) {
+
+                                receiverUser.image = value.getString(KEY_IMAGE);
+                                receiverUser.userName = value.getString(KEY_USER_NAME);
+                                receiverUser.email = value.getString(KEY_EMAIL);
+                                receiverUser.token = value.getString(KEY_FCM_TOKEN);
+                                receiverUser.id = value.getId();
+
+                                activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
+                                        receiverUser.image
+                                )));
+
+                                activityChatBinding.textUserName.setText(receiverUser.userName);
+
+                            } else {
+
+                                activityChatBinding.receiverImage.setImageBitmap(getResizedBitmap(getReceiverUserImage(
+                                        preferenceManager.getString(KEY_RECEIVER_IMAGE)
+                                )));
+
+                                activityChatBinding.textUserName.setText(preferenceManager.getString(KEY_RECEIVER_USER_NAME));
+
+                            }
+
+                        }
+
+                    }));
+
+        }
 
     }
 
@@ -313,19 +354,20 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-    private void sendMessage() {
+    private void sendMessage(String messageText, boolean isImage) {
 
         if (conversionId != null) {
 
-            updateConversion(activityChatBinding.inputMessage.getText().toString());
+            updateConversion(messageText, isImage);
 
         } else {
 
             HashMap<String, Object> message = new HashMap<>();
             message.put(KEY_SENDER_ID, preferenceManager.getString(KEY_USER_ID));
             message.put(KEY_RECEIVER_ID, receiverUser.id);
-            message.put(KEY_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
+            message.put(KEY_MESSAGE, messageText.strip());
             message.put(KEY_TIMESTAMP, new Date());
+            message.put(KEY_IS_IMAGE, isImage);
             message.put(KEY_COUNT, count);
 
             firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(message);
@@ -337,12 +379,16 @@ public class ChatActivity extends BaseActivity {
             conversion.put(KEY_RECEIVER_ID, receiverUser.id);
             conversion.put(KEY_RECEIVER_USER_NAME, receiverUser.userName);
             conversion.put(KEY_RECEIVER_IMAGE, receiverUser.image);
-            conversion.put(KEY_LAST_MESSAGE, activityChatBinding.inputMessage.getText().toString().strip());
+            conversion.put(KEY_LAST_MESSAGE, messageText.strip());
             conversion.put(KEY_TIMESTAMP, new Date());
+            conversion.put(KEY_IS_IMAGE, isImage);
             conversion.put(KEY_COUNT, count);
             addConversion(conversion);
 
         }
+
+        flag = false;
+        listenAvailabilityOfReceiver();
 
         if (!isReceiverOnline) {
 
@@ -379,12 +425,18 @@ public class ChatActivity extends BaseActivity {
 
         activityChatBinding.imageBack.setOnClickListener(v -> onBackPressed());
 
-        activityChatBinding.layoutFiles.setOnClickListener(v -> fileChooser());
+        activityChatBinding.layoutFiles.setOnClickListener(v -> {
+
+            Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            pickImage.launch(intent);
+
+        });
 
         activityChatBinding.layoutSend.setOnClickListener(v -> {
 
             if (!activityChatBinding.inputMessage.getText().toString().trim().isEmpty()) {
-                sendMessage();
+                sendMessage(activityChatBinding.inputMessage.getText().toString(), false);
             }
 
         });
@@ -429,7 +481,7 @@ public class ChatActivity extends BaseActivity {
 
     }
 
-    private void updateConversion(String message) {
+    private void updateConversion(String message, boolean isImage) {
 
         DocumentReference documentReference =
                 firebaseFirestore.collection(KEY_COLLECTION_CONVERSATIONS).document(conversionId);
@@ -441,6 +493,7 @@ public class ChatActivity extends BaseActivity {
             documentReference.update(
                     KEY_LAST_MESSAGE, message.strip(),
                     KEY_TIMESTAMP, new Date(),
+                    KEY_IS_IMAGE, isImage,
                     KEY_COUNT, count
             );
 
@@ -449,6 +502,7 @@ public class ChatActivity extends BaseActivity {
             messageData.put(KEY_RECEIVER_ID, receiverUser.id);
             messageData.put(KEY_MESSAGE, message.strip());
             messageData.put(KEY_TIMESTAMP, new Date());
+            messageData.put(KEY_IS_IMAGE, isImage);
             messageData.put(KEY_COUNT, count);
 
             firebaseFirestore.collection(KEY_COLLECTION_CHAT).add(messageData);
@@ -602,21 +656,12 @@ public class ChatActivity extends BaseActivity {
 
     private String encodedImage(Bitmap bitmap) {
 
-        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, 50, 50, false);
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, IMAGE_WIDTH, IMAGE_HEIGHT, false);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         previewBitmap.compress(Bitmap.CompressFormat.WEBP, 95, byteArrayOutputStream);
 
         byte[] bytes = byteArrayOutputStream.toByteArray();
         return Base64.encodeToString(bytes, Base64.DEFAULT);
-
-    }
-
-    private void fileChooser() {
-
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent, PICK_IMAGE_REQUEST);
 
     }
 
@@ -628,7 +673,10 @@ public class ChatActivity extends BaseActivity {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void uploadFile() {
+
+        flag = true;
 
         if (imageExtension != null) {
 
@@ -641,28 +689,12 @@ public class ChatActivity extends BaseActivity {
             fileReference.putFile(imageUri)
                     .addOnSuccessListener(taskSnapshot -> {
 
-                        updateConversion(String.valueOf(imageUri));
-
-                        showToast("OKAY");
+                        sendMessage(encodedImage(bitmap), true);
 
                     });
 
         }
 
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null) {
-
-            imageUri = data.getData();
-            imageExtension = getFileExtension(imageUri);
-            uploadFile();
-
-        }
     }
 
 }

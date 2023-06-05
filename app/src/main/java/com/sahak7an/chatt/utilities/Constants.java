@@ -7,6 +7,7 @@ public class Constants {
     public static final int MIN_PORT = 1000;
     public static final int MAX_PORT = 10000;
     public static final int IMAGE_WIDTH = 1920;
+    public static final String KEY_URI = "uri";
     public static final int IMAGE_HEIGHT = 1080;
     public static final String KEY_USER = "user";
     public static final String KEY_PORT = "port";
@@ -21,6 +22,7 @@ public class Constants {
     public static final String REMOTE_MSG_DATA = "data";
 
     public static final String PUBLIC_KEY = "publicKey";
+    public static final String KEY_IS_IMAGE = "isImage";
     public static final String KEY_PASSWORD = "password";
     public static final String PRIVATE_KEY = "privateKey";
     public static final String KEY_FCM_TOKEN = "fcmToken";

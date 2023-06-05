@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:layout_marginTop="2dp">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/imageInfo"
+        android:layout_width="250dp"
+        android:layout_height="350dp"
+        android:padding="2dp"
+        android:maxWidth="@dimen/_220sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:riv_corner_radius="10dp"
+        android:background="@drawable/background_sent_message_last"
+        app:layout_constraintWidth_percent="0.8"
+        android:contentDescription="@string/app_name" />
+
+    <TextView
+        android:id="@+id/textDateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="15dp"
+        android:layout_marginTop="4dp"
+        android:maxLines="1"
+        android:textSize="10sp"
+        android:maxWidth="@dimen/_100sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageInfo"
+        android:textColor="@color/black"
+        tools:ignore="SmallSp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
