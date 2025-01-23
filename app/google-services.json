@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "114132361726",
-    "project_id": "chat-t-b1a68",
-    "storage_bucket": "chat-t-b1a68.appspot.com"
+    "project_number": "",
+    "project_id": "",
+    "storage_bucket": ""
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:114132361726:android:bf2a2e2de79146343420af",
+        "mobilesdk_app_id": "",
         "android_client_info": {
           "package_name": "com.sahak7an.chatt"
         }
       },
       "oauth_client": [
         {
-          "client_id": "114132361726-fl5vuv1ngal8finv356s20krqeb60qsj.apps.googleusercontent.com",
+          "client_id": "",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBKn3KP0YCEYWn6YwLOROmJeOb50UUU4zo"
+          "current_key": ""
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "114132361726-fl5vuv1ngal8finv356s20krqeb60qsj.apps.googleusercontent.com",
+              "client_id": "",
               "client_type": 3
             }
           ]

@@ -57,7 +57,7 @@ public class Constants {
             remoteMsgHeaders.put(
 
                     REMOTE_MSG_AUTHORIZATION,
-                    "key=AAAAGpLRof4:APA91bFe5qR8EhNlOzamOr04zuEht3_ILQl9e4lwRDh4Dgi3jUScc5i_5zmx12yhmJG5_bP_zIxTfLHMeZ5xJfWC_ByQCKHtSH1Cr5ixBFg-Wo7GtfBFPpRX5_U-9hDp8C8ypXfOAL07"
+                    ""
 
             );
 
